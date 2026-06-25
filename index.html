@@ -1,250 +1,61 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KECI ON - 출장복명 신청</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
-
-    <link href="./assets/css/custom.css" rel="stylesheet" type="text/css">
-</head>
-<body>
-
-<div class="page-content">
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-logo-link">
-                <img src="./assets/images/keci_white.png" alt="KECI ON" class="sidebar-logo-img">
-            </a>
-        </div>
-        
-        <div class="user-profile-box">
-            <div class="user-avatar-mock"><i class="ph ph-user"></i></div>
-            <div class="profile-name">박미현</div>
-            <div class="profile-dept">정보안전팀</div>
-        </div>
-
-        <ul class="nav-sidebar">
-            <li class="nav-item-header">인사</li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="ph ph-address-book"></i><span>나의 인사정보</span></a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="ph ph-users"></i><span>조직도</span></a></li>
-            <li class="nav-item-header">근태</li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="ph ph-notebook"></i><span>근태 신청 현황</span></a></li>
-            <li class="nav-item active"><a href="#" class="nav-link"><i class="ph ph-note-pencil"></i><span>출장 복명 신청</span></a></li>
-        </ul>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+            <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon">
+            <span class="sidebar-logo-text">KECI ON</span>
+        </a>
     </div>
-
-    <div class="content-wrapper">
-        <div class="main-navbar">
-            <div class="timer-info">
-                <i class="ph ph-clock"></i> <span id="loginTimer">59:59</span>
-                <a href="javascript:void(0);" class="btn-timer-extend">연장</a>
-            </div>
-        </div>
-
-        <div class="content">
-            <form id="command" spellcheck="false" action="./add" method="post" autocomplete="off">
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title m-0">신청자/승인자 지정</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">신청자 <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="memberName" class="form-control member-select-name" value="박미현" readonly>
-                                    <input type="hidden" name="memberId" class="form-control member-select-id" value="10797">
-                                    <input type="hidden" name="memberDept" class="form-control member-select-dept" value="6614">
-                                    <button type="button" class="btn btn-search-custom" onclick="fnOpenModalMemberSingleSelect()"><i class="ph ph-magnifying-glass"></i></button>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">승인자 <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="approvalDto.approvalLine" class="form-control" readonly>
-                                    <button type="button" class="btn btn-search-custom btn-approval-line" onclick="fnOpenModalApprovalLine()"><i class="ph ph-magnifying-glass"></i></button>
-                                </div>
-                                <div class="approvalArea mt-2"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title m-0">출장 복명 상세 정보</h5>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="fnOpenModalBsnsTrList()"><i class="ph ph-file-search"></i> 원출장 문서 선택</button>
-                        <input type="hidden" name="bsnsTrSeq" readonly>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <label class="form-label-custom">동행자 구성</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control companion-select-name" readonly placeholder="선택된 동행자가 없습니다.">
-                                <div class="companionArea"></div>
-                                <button type="button" class="btn btn-search-custom" onclick="fnOpenCompanionMemberSingleSelect()"><i class="ph ph-magnifying-glass"></i></button>
-                            </div>
-                            <div class="mt-2 companion-btn-area d-flex flex-wrap gap-1"></div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label-custom">출장지 구분 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-3 pt-2">
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="W"> 근무지 내</label>
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="D"> 국내</label>
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="I"> 국외</label>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label-custom">교통 수단 <span class="text-danger">*</span></label>
-                                <div class="d-flex flex-wrap gap-3 pt-2">
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="OWN_VHC"> 자가용</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="BSN_VHC"> 업무용차량</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="PUB_TRN"> 대중교통</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="AIR_PLN"> 항공편</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="ETC_TRN"> 기타</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장 시작일시 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-2">
-                                    <input type="date" name="bsnsTrStartDate" class="form-control">
-                                    <input type="text" name="bsnsTrStartTime" class="form-control timepicker" readonly placeholder="시간 선택">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장 종료일시 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-2">
-                                    <input type="date" name="bsnsTrEndDate" class="form-control">
-                                    <input type="text" name="bsnsTrEndTime" class="form-control timepicker" readonly placeholder="시간 선택">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장지 <span class="text-danger">*</span></label>
-                                <input type="text" name="location" class="form-control" placeholder="예: 세종정부청사">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-custom">방문처 <span class="text-danger">*</span></label>
-                                <input type="text" name="site" class="form-control" placeholder="예: 행정안전부">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label-custom">출장 결과 요약</label>
-                            <textarea name="workResult" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-custom">수행 업무 상세 내용</label>
-                            <textarea name="workDetail" class="form-control" rows="4"></textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label-custom">개별 여비 산정 내역</label>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle text-center m-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>이름</th>
-                                            <th>일비</th>
-                                            <th>식비</th>
-                                            <th>숙박비</th>
-                                            <th>교통비</th>
-                                            <th>기타여비</th>
-                                            <th>개별 합계</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="companionCosts">
-                                        </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="cost-summary-grid">
-                            <div class="cost-box total">
-                                <label>출장비 총 합계</label>
-                                <input type="text" name="totalCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 일비</label>
-                                <input type="text" name="dayCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 식비</label>
-                                <input type="text" name="foodCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 숙박비</label>
-                                <input type="text" name="stayCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 교통비</label>
-                                <input type="text" name="transCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 기타여비</label>
-                                <input type="text" name="otherCost" value="0" readonly>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="card-footer bg-light d-flex justify-content-between p-3">
-                        <button type="button" class="btn btn-secondary px-4">취소</button>
-                        <button type="button" class="btn btn-primary px-4" onclick="fnSave()"><i class="ph ph-paper-plane-right"></i> 복명서 제출</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+    
+    <div class="user-profile-box">
+        <div class="user-avatar-mock"><i class="ph ph-user"></i></div>
+        <div class="profile-name">박미현</div>
+        <div class="profile-dept">정보안전팀</div>
     </div>
-</div>
+    
+    ```
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+---
 
-<script>
-    window.StringUtils = {
-        isBlank: function(str) { return !str || str.trim() === ''; },
-        unComma: function(str) { return str ? str.toString().replace(/,/g, '') : '0'; },
-        numberFormat: function(num) { return Number(num).toLocaleString(); },
-        numberCurrency: function(e) { 
-            let val = e.target.value.replace(/[^0-9]/g, '');
-            e.target.value = val ? Number(val).toLocaleString() : '';
-        }
-    };
-    window.FormUtils = {
-        getFormData: function() {
-            return {
-                data: {
-                    memberId: $('[name=memberId]').val(),
-                    memberName: $('[name=memberName]').val(),
-                    companions: []
-                }
-            };
-        },
-        checkSubmit: function() { return false; }
-    };
-    window.ApprovalUtils = { processApproval: function() { return true; } };
-    window.AjaxUtils = { confirmSave: function(url, data) { Swal.fire('제출 완료', '정상 처리되었습니다.', 'success'); } };
-</script>
+### 2. `assets/css/custom.css` (스타일 가이드라인 반영)
 
-<script src="./assets/js/bsns-tr-logic.js"></script>
+첨부해주신 원본 UI 비율에 맞춰, 마크 크기를 조절하고 텍스트가 세로 중앙 정렬로 나란히 흐르도록 스타일을 보정했습니다.
 
-</body>
-</html>
+```css
+/* 사이드바 헤더 프레임 */
+.sidebar-header {
+    padding: 16px 20px;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 왼쪽 정렬로 변경 */
+    height: 56px;
+    box-sizing: border-box;
+}
+
+/* [추가] 로고 + 텍스트 정렬 정밀 보정 */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 마크와 글자 사이의 간격 */
+    text-decoration: none !important;
+}
+
+/* 로고 마크 아이콘 크기 (Limitless 스케일 반영) */
+.sidebar-logo-icon {
+    height: 22px; 
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
+    transform: scale(1.2); /* 원본 style.css의 scale 규칙 반영 */
+}
+
+/* 우측 'KECI ON' 텍스트 스타일 */
+.sidebar-logo-text {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    font-family: 'Pretendard', sans-serif;
+    vertical-align: middle;
+}
