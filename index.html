@@ -23,11 +23,11 @@
 <div class="page-content">
     <!-- 좌측 사이드바 영역 -->
     <div class="sidebar">
-        <!-- 로고 마크 이미지와 'KECI ON' 텍스트 결합형 헤더 -->
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon">
-                <span class="sidebar-logo-text">KECI ON</span>
+        <!-- [핵심 보정] 기존 CSS의 숨김 규칙을 무력화하기 위해 스타일에 !important 강제 적용 -->
+        <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 16px 20px !important;">
+            <a href="#" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important;">
+                <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon" style="height: 22px !important; width: auto !important; display: block !important;">
+                <span class="sidebar-logo-text" style="display: inline-block !important; color: #ffffff !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Pretendard', sans-serif !important; visibility: visible !important; opacity: 1 !important;">KECI ON</span>
             </a>
         </div>
         
@@ -37,7 +37,7 @@
             <div class="profile-dept">정보안전팀</div>
         </div>
 
-        <!-- [수정] '출장 복명 신청' 메뉴만 남기도록 네비게이션 축소 -->
+        <!-- 좌측 네비게이션: 출장 복명 신청만 노출 -->
         <ul class="nav-sidebar">
             <li class="nav-item-header">근태</li>
             <li class="nav-item active"><a href="#" class="nav-link"><i class="ph ph-note-pencil"></i><span>출장 복명 신청</span></a></li>
