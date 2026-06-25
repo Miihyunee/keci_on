@@ -23,11 +23,11 @@
 <div class="page-content">
     <!-- 좌측 사이드바 영역 -->
     <div class="sidebar">
-        <!-- [핵심 보정] 기존 CSS의 숨김 규칙을 무력화하기 위해 스타일에 !important 강제 적용 -->
-        <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 16px 20px !important;">
-            <a href="#" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important;">
-                <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon" style="height: 22px !important; width: auto !important; display: block !important;">
-                <span class="sidebar-logo-text" style="display: inline-block !important; color: #ffffff !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Pretendard', sans-serif !important; visibility: visible !important; opacity: 1 !important;">KECI ON</span>
+        <!-- [로고 영역 완전 재보정] 테마 기본 스타일 무력화 및 세로 중앙 정렬 수치 고정 -->
+        <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 0 20px !important; height: 56px !important; background-color: rgba(0, 0, 0, 0.15) !important;">
+            <a href="javascript:location.reload();" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important; height: 100% !important;">
+                <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon" style="height: 20px !important; width: auto !important; max-height: 20px !important; object-fit: contain !important; transform: none !important; margin: 0 !important; display: block !important;">
+                <span class="sidebar-logo-text" style="display: inline-block !important; color: #ffffff !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Pretendard', sans-serif !important; visibility: visible !important; opacity: 1 !important; line-height: 1 !important; letter-spacing: -0.3px !important;">KECI ON</span>
             </a>
         </div>
         
@@ -37,10 +37,14 @@
             <div class="profile-dept">정보안전팀</div>
         </div>
 
-        <!-- 좌측 네비게이션: 출장 복명 신청만 노출 -->
+        <!-- 좌측 네비게이션: 클릭 시 현재 페이지 새로고침 처리 지정 -->
         <ul class="nav-sidebar">
             <li class="nav-item-header">근태</li>
-            <li class="nav-item active"><a href="#" class="nav-link"><i class="ph ph-note-pencil"></i><span>출장 복명 신청</span></a></li>
+            <li class="nav-item active">
+                <a href="javascript:void(0);" onclick="location.reload();" class="nav-link">
+                    <i class="ph ph-note-pencil"></i><span>출장 복명 신청</span>
+                </a>
+            </li>
         </ul>
     </div>
 
