@@ -23,7 +23,7 @@
 <div class="page-content">
     <!-- 좌측 사이드바 영역 -->
     <div class="sidebar">
-        <!-- [로고 영역 완전 재보정] 테마 기본 스타일 무력화 및 세로 중앙 정렬 수치 고정 -->
+        <!-- 로고 영역 -->
         <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 0 20px !important; height: 56px !important; background-color: rgba(0, 0, 0, 0.15) !important;">
             <a href="javascript:location.reload();" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important; height: 100% !important;">
                 <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon" style="height: 20px !important; width: auto !important; max-height: 20px !important; object-fit: contain !important; transform: none !important; margin: 0 !important; display: block !important;">
@@ -37,7 +37,7 @@
             <div class="profile-dept">정보안전팀</div>
         </div>
 
-        <!-- 좌측 네비게이션: 클릭 시 현재 페이지 새로고침 처리 지정 -->
+        <!-- 좌측 네비게이션 -->
         <ul class="nav-sidebar">
             <li class="nav-item-header">근태</li>
             <li class="nav-item active">
@@ -50,10 +50,21 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <div class="content-wrapper">
-        <div class="main-navbar">
-            <div class="timer-info">
-                <i class="ph ph-clock"></i> <span id="loginTimer">59:59</span>
-                <a href="javascript:void(0);" class="btn-timer-extend">연장</a>
+        <!-- [수정] 상단 타이머 제거 및 image_221ba7.png 형태의 출장 여비 계산기 타이틀 라인 추가 -->
+        <div class="main-navbar" style="height: auto !important; min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 12px 24px !important;">
+            <div class="calculator-header-box" style="display: flex !important; align-items: stretch !important; gap: 14px !important;">
+                <!-- 좌측 세로 구분선 -->
+                <div class="title-indicator" style="width: 1px !important; background-color: #cbd5e1 !important;"></div>
+                <!-- 텍스트 영역 플렉스 박스 -->
+                <div style="display: flex !important; flex-direction: column !important; justify-content: center !important; gap: 4px !important;">
+                    <div style="display: flex !important; align-items: center !important; gap: 8px !important;">
+                        <span style="font-size: 18px !important; font-weight: 700 !important; color: #005691 !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.5px !important;">출장 여비 계산기</span>
+                        <span style="background-color: #1e293b !important; color: #ffffff !important; font-size: 11px !important; font-weight: 700 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: 0.5px !important; line-height: 1.2 !important;">BETA</span>
+                    </div>
+                    <div style="font-size: 12px !important; color: #64748b !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.2px !important;">
+                        여비규정 <span style="font-weight: 500 !important;">[시행 2025.12.18.]</span> 기준 · 본원: 서울특별시 성동구
+                    </div>
+                </div>
             </div>
         </div>
 
