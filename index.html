@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KECI ON - 出장여비 계산기</title>
+    <title>KECI ON - 출장여비 계산기</title>
     
     <!-- 원본 Core 및 테마 스타일시트 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,6 +29,7 @@
             .card {
                 border: none !important;
                 box-shadow: none !important;
+                margin-bottom: 0 !important;
             }
             .print-only {
                 display: block !important;
@@ -43,7 +44,18 @@
         .ctr { text-align: center; }
         .font-weight-semibold { font-weight: 600; }
         .font-weight-bold { font-weight: 700; }
-        .card { margin-bottom: 1.5rem; }
+        
+        /* 섹션 구분을 명확하게 하기 위한 카드 간격 설정 */
+        .section-card {
+            margin-bottom: 20px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+        .section-title {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+        }
     </style>
 </head>
 <body>
@@ -102,12 +114,13 @@
         </div>
 
         <div class="content">
+            <!-- 전체를 하나의 form으로 감싸 데이터 전송 보장 -->
             <form id="tripForm" onsubmit="event.preventDefault(); addTrip();">
                 
-                <!-- 카테고리 1: 기본 정보 입력 카드 -->
-                <div class="card no-print">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title m-0"><i class="ph ph-user-focus"></i> 1. 출장자 및 목적지 (기본 정보)</h5>
+                <!-- [섹션 1] 기본 정보 입력 카드 -->
+                <div class="card section-card no-print">
+                    <div class="card-header bg-light py-3">
+                        <span class="section-title"><i class="ph ph-user-focus text-primary me-2"></i> 1. 출장자 기본 정보</span>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -116,7 +129,7 @@
                                 <input type="text" id="name" class="form-control" placeholder="홍길동" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label font-weight-semibold">직위 (구분)</label>
+                                <label class="form-label font-weight-semibold">직위 구분</label>
                                 <select id="grade" class="form-select">
                                     <option value="3" selected>일반 직원</option>
                                     <option value="2">임원 및 대등한 직원</option>
@@ -124,12 +137,12 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label font-weight-semibold">출장지</label>
-                                <input type="text" id="dest" class="form-control" placeholder="부산지사 등" required>
+                                <label class="form-label font-weight-semibold">출장 목적지</label>
+                                <input type="text" id="dest" class="form-control" placeholder="예: 세종본사, 부산지사" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label font-weight-semibold">출장 용무 (목적)</label>
-                                <input type="text" id="purpose" class="form-control" placeholder="업무 협의 및 현장 점검" required>
+                                <input type="text" id="purpose" class="form-control" placeholder="예: 정기 검사 및 협의" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">출장 시작일</label>
@@ -143,10 +156,10 @@
                     </div>
                 </div>
 
-                <!-- 카테고리 2: 출장 조건 및 정산 설정 카드 -->
-                <div class="card no-print">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title m-0"><i class="ph ph-sliders"></i> 2. 여비 정산 상세 조건</h5>
+                <!-- [섹션 2] 출장 조건 및 정산 설정 카드 -->
+                <div class="card section-card no-print">
+                    <div class="card-header bg-light py-3">
+                        <span class="section-title"><i class="ph ph-sliders text-success me-2"></i> 2. 여비 및 정산 조건 설정</span>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -158,88 +171,88 @@
                                 </select>
                             </div>
 
-                            <!-- 근무지 외 세부 옵션 -->
+                            <!-- [근무지 외 전용 필드] -->
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">지역 분류 (숙박상한)</label>
+                                <label class="form-label font-weight-semibold">지역 분류 (숙박상한액 지역)</label>
                                 <select id="region" class="form-select">
-                                    <option value="서울">서울시 (10만)</option>
-                                    <option value="광역시">광역시 (8만)</option>
-                                    <option value="기타" selected>기타 지역 (7만)</option>
+                                    <option value="서울">서울 특별시 (100,000원)</option>
+                                    <option value="광역시">광역시 지역 (80,000원)</option>
+                                    <option value="기타" selected>기타 시·군 지역 (70,000원)</option>
                                 </select>
                             </div>
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">교통수단 구분</label>
+                                <label class="form-label font-weight-semibold">교통수단 (일비 적용)</label>
                                 <select id="vehicle" class="form-select" onchange="toggleVehicleFields()">
-                                    <option value="public">대중교통 / 자가용 (일비 全액)</option>
-                                    <option value="company">업무용 / 전용 차량 (일비 1/2)</option>
+                                    <option value="public">대중교통 / 자가용 (일비 100% 지급)</option>
+                                    <option value="company">공용차량 / 전용차량 (일비 50% 감액)</option>
                                 </select>
                             </div>
                             <div class="col-md-3 outer-field" id="vehicleDaysWrapper" style="display:none;">
-                                <label class="form-label font-weight-semibold">차량 이용 일수</label>
+                                <label class="form-label font-weight-semibold">공용차 이용 일수</label>
                                 <input type="number" id="vehicleDays" class="form-control" value="0" min="0">
                             </div>
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">숙박 박수</label>
+                                <label class="form-label font-weight-semibold">숙박 박수 (0박인 경우 0)</label>
                                 <input type="number" id="nights" class="form-control" value="0" min="0">
                             </div>
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">1박당 숙박비 (실비)</label>
+                                <label class="form-label font-weight-semibold">1박당 실제 숙박비</label>
                                 <input type="number" id="lodgingPerNight" class="form-control" value="0" min="0">
                             </div>
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">숙박 결제 방식</label>
+                                <label class="form-label font-weight-semibold">숙박비 결제 구분</label>
                                 <select id="lodgingPayment" class="form-select">
-                                    <option value="개인카드">개인카드 / 현금</option>
-                                    <option value="법인카드">법인카드</option>
+                                    <option value="개인카드">개인카드 / 현금 지출</option>
+                                    <option value="법인카드">법인카드 지출</option>
                                 </select>
                             </div>
                             <div class="col-md-3 outer-field">
-                                <label class="form-label font-weight-semibold">무료 식사 횟수</label>
+                                <label class="form-label font-weight-semibold">제공받은 식사 횟수 (차감용)</label>
                                 <input type="number" id="freeMeals" class="form-control" value="0" min="0">
                             </div>
 
-                            <!-- 근무지 내 세부 옵션 -->
+                            <!-- [근무지 내 전용 필드] -->
                             <div class="col-md-4 inner-field d-none">
-                                <label class="form-label font-weight-semibold">소요 시간</label>
+                                <label class="form-label font-weight-semibold">출장 소요 시간</label>
                                 <select id="innerHours" class="form-select">
-                                    <option value="4plus">4시간 이상</option>
-                                    <option value="4under">4시간 미만</option>
+                                    <option value="4plus">4시간 이상 (20,000원)</option>
+                                    <option value="4under">4시간 미만 (10,000원)</option>
                                 </select>
                             </div>
                             <div class="col-md-5 inner-field d-none">
-                                <label class="form-label font-weight-semibold">운행 구분</label>
+                                <label class="form-label font-weight-semibold">차량 운행 여부</label>
                                 <div class="pt-2">
                                     <label class="form-check-label">
-                                        <input type="checkbox" id="innerVehicle" class="form-check-input"> 자차 또는 공용차 직접 운행 (-1만원 차감)
+                                        <input type="checkbox" id="innerVehicle" class="form-check-input"> 기관 차량 또는 자차 운행 시 체크 (-10,000원 차감)
                                     </label>
                                 </div>
                             </div>
 
-                            <!-- 공통 교통비 영수증 증빙 금액 분리 -->
+                            <!-- [교통비 정산 세부 구분 분리] -->
                             <div class="col-md-6">
-                                <label class="form-label font-weight-semibold">운임/교통비 (개인카드 지출)</label>
+                                <label class="form-label font-weight-semibold">실비 교통비 (개인카드 영수증 증빙)</label>
                                 <input type="number" id="transPersonal" class="form-control" value="0" min="0">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label font-weight-semibold">운임/교통비 (법인카드 지출)</label>
+                                <label class="form-label font-weight-semibold">실비 교통비 (법인카드 영수증 증빙)</label>
                                 <input type="number" id="transCorp" class="form-control" value="0" min="0">
                             </div>
                         </div>
                         
                         <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-primary px-4"><i class="ph ph-plus-circle"></i> 정산 내역서에 추가</button>
+                            <button type="submit" class="btn btn-primary px-4 py-2"><i class="ph ph-plus-circle me-1"></i> 명세 목록에 추가</button>
                         </div>
                     </div>
                 </div>
             </form>
 
-            <!-- 정산 결과 목록 테이블 카드 -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                    <h5 class="card-title m-0"><i class="ph ph-table"></i> 여비 정산 명세 목록</h5>
+            <!-- [결과 테이블 섹션] -->
+            <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-light py-3">
+                    <span class="section-title"><i class="ph ph-table text-warning me-2"></i> 여비 정산 명세 목록</span>
                     <div class="no-print d-flex gap-2">
-                        <button type="button" class="btn btn-success btn-sm" onclick="exportToExcel()"><i class="ph ph-file-xls"></i> 엑셀 다운로드</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()"><i class="ph ph-printer"></i> 명세서 인쇄</button>
+                        <button type="button" class="btn btn-success btn-sm px-3" onclick="exportToExcel()"><i class="ph ph-file-xls me-1"></i> 엑셀 파일 다운로드</button>
+                        <button type="button" class="btn btn-secondary btn-sm px-3" onclick="window.print()"><i class="ph ph-printer me-1"></i> 인쇄하기</button>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -285,7 +298,6 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 코어 계산 및 연산 스크립트 -->
 <script>
 var TRIP_CONFIG = {
   effectiveDate: "2025.12.18.",
@@ -422,7 +434,7 @@ function addTrip() {
     tripList.push(item);
     renderTable();
     
-    // 폼 초기화 (인적사항 및 목적지만 지우고 설정값은 디폴트 유지)
+    // 폼 초기화 (핵심 인적사항 입력 필드만 초기화 후 다음 입력을 유도)
     $('#name').val('');
     $('#purpose').val('');
     $('#dest').val('');
@@ -461,7 +473,7 @@ function renderTable() {
         sums.pMeal += t.personal.meal;
         sums.pLodging += t.personal.lodging;
         sums.pTrans += t.personal.trans;
-        sums.cLogging += t.corp.lodging;
+        sums.cLodging += t.corp.lodging;
         sums.cTrans += t.corp.trans;
         sums.total += t.calc.total;
 
@@ -491,7 +503,7 @@ function renderTable() {
         '<td class="num">' + formatNum(sums.pMeal) + '</td>' +
         '<td class="num">' + formatNum(sums.pLodging) + '</td>' +
         '<td class="num">' + formatNum(sums.pTrans) + '</td>' +
-        '<td class="num">' + formatNum(sums.cLogging) + '</td>' +
+        '<td class="num">' + formatNum(sums.cLodging) + '</td>' +
         '<td class="num">' + formatNum(sums.cTrans) + '</td>' +
         '<td class="num text-primary font-weight-bold">' + formatNum(sums.total) + '</td>' +
         '</tr>';
