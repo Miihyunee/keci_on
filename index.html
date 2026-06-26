@@ -78,36 +78,8 @@
 </div>
         <div class="content">
             <form id="command" spellcheck="false" action="./add" method="post" autocomplete="off">
-                
-                <!-- 카드 1: 신청자/승인자 지정 박스 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title m-0">신청자/승인자 지정</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">신청자 <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="memberName" class="form-control member-select-name" value="박미현" readonly>
-                                    <input type="hidden" name="memberId" class="form-control member-select-id" value="10797">
-                                    <input type="hidden" name="memberDept" class="form-control member-select-dept" value="6614">
-                                    <button type="button" class="btn btn-search-custom" onclick="fnOpenModalMemberSingleSelect()"><i class="ph ph-magnifying-glass"></i></button>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">승인자 <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="approvalDto.approvalLine" class="form-control" readonly>
-                                    <button type="button" class="btn btn-search-custom btn-approval-line" onclick="fnOpenModalApprovalLine()"><i class="ph ph-magnifying-glass"></i></button>
-                                </div>
-                                <div class="approvalArea mt-2"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 카드 2: 출장 복명 상세 정보 -->
+                <!-- 카드 : 출장 복명 상세 정보 -->
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title m-0">출장 복명 상세 정보</h5>
