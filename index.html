@@ -232,18 +232,19 @@
                                     <option value="company">공용차량 / 전용차량 (일비 50% 감액)</option>
                                 </select>
                             </div>
-                            <!-- [수정] 숫자 전용 제약 클래스(number-only-field) 추가 -->
+                            
+                            <!-- [수정] 대입 오류 방지를 위해 모든 숫자 필드의 type을 "text"로 변경하고 inputmode 제어 추가 -->
                             <div class="col-md-3 outer-field" id="vehicleDaysWrapper" style="display:none;">
                                 <label class="form-label font-weight-semibold">공용차 이용 일수</label>
-                                <input type="number" id="vehicleDays" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="vehicleDays" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">숙박 박수 (0박인 경우 0)</label>
-                                <input type="number" id="nights" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="nights" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">1박당 실제 숙박비</label>
-                                <input type="number" id="lodgingPerNight" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="lodgingPerNight" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">숙박비 결제 구분</label>
@@ -254,7 +255,7 @@
                             </div>
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">제공받은 식사 횟수 (차감용)</label>
-                                <input type="number" id="freeMeals" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="freeMeals" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
 
                             <div class="col-md-4 inner-field d-none">
@@ -275,11 +276,11 @@
 
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">실비 교통비 (개인카드 영수증 증빙)</label>
-                                <input type="number" id="transPersonal" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="transPersonal" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">실비 교통비 (법인카드 영수증 증빙)</label>
-                                <input type="number" id="transCorp" class="form-control number-only-field" value="0" min="0">
+                                <input type="text" id="transCorp" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
                         </div>
                         
@@ -347,7 +348,7 @@
 
 <script>
 $(document).ready(function() {
-    // 데이트피커 엔진 초기화
+    // 데이트피커 초기화
     $('.bootstrap-pretty-datepicker').datepicker({
         format: "yyyy-mm-dd",
         autoclose: true,
@@ -365,35 +366,36 @@ $(document).ready(function() {
     });
 
     /* =====================================================
-       [추가 수정] 숫자 입력 편의성 및 유효성 검증 핸들러
+       [완벽 해결] 선행 00 강제 소거 알고리즘이 적용된 필터 핸들러
        ===================================================== */
     $('.number-only-field').on({
-        // 1. 클릭하거나 포커스 이동 시 기존 값이 '0'이면 공백 전환 처리
         'focus': function() {
             if ($(this).val() === '0') {
                 $(this).val('');
             }
         },
-        // 2. 포커스를 잃었을 때 칸이 완전히 비어있다면 다시 '0'으로 원복
         'blur': function() {
             if ($(this).val().trim() === '') {
                 $(this).val('0');
             }
         },
-        // 3. 소수점(.), 부호(+, -), 지수(e) 등 특수 제어 필터링 차단
         'keydown': function(e) {
-            var invalidChars = ['-', '+', 'e', 'E', '.'];
-            if (invalidChars.includes(e.key)) {
+            // 숫자, 백스페이스, 삭제, 탭, 화살표 이동 키를 제외한 문자 입력 제한
+            var allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+            if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
                 e.preventDefault();
             }
         },
-        // 4. 모바일 또는 마우스 붙여넣기로 문자열 진입 시 강제 정수 필터링
         'input': function() {
+            // 숫자가 아닌 가공 문자 일괄 제거
             var cleanVal = $(this).val().replace(/[^0-9]/g, '');
-            // 다중 00 제거용 재매핑
+            
+            // 핵심 교정: 숫자가 입력되는 순간 맨 앞자리 '0'이 존재하면 완전히 잘라내고 재조립
             if (cleanVal.length > 1 && cleanVal.startsWith('0')) {
-                cleanVal = parseInt(cleanVal, 10).toString();
+                cleanVal = cleanVal.replace(/^0+/, '');
+                if(cleanVal === '') cleanVal = '0';
             }
+            
             $(this).val(cleanVal);
         }
     });
@@ -501,15 +503,15 @@ function addTrip() {
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
         vehicle: $('#vehicle').val(),
-        vehicleDays: parseInt($('#vehicleDays').val()) || 0,
-        nights: parseInt($('#nights').val()) || 0,
+        vehicleDays: parseInt($('#vehicleDays').val(), 10) || 0,
+        nights: parseInt($('#nights').val(), 10) || 0,
         region: $('#region').val(),
-        lodgingPerNight: parseInt($('#lodgingPerNight').val()) || 0,
-        freeMeals: parseInt($('#freeMeals').val()) || 0,
+        lodgingPerNight: parseInt($('#lodgingPerNight').val(), 10) || 0,
+        freeMeals: parseInt($('#freeMeals').val(), 10) || 0,
         innerHours: $('#innerHours').val(),
         innerVehicle: $('#innerVehicle').prop('checked'),
-        transPersonal: parseInt($('#transPersonal').val()) || 0,
-        transCorp: parseInt($('#transCorp').val()) || 0,
+        transPersonal: parseInt($('#transPersonal').val(), 10) || 0,
+        transCorp: parseInt($('#transCorp').val(), 10) || 0,
         lodgingPayment: $('#lodgingPayment').val()
     };
 
@@ -543,7 +545,6 @@ function addTrip() {
     $('#purpose').val('');
     $('#dest').val('');
     
-    // 리셋 시 기본값 '0' 지정 및 필드 초기화
     $('#transPersonal').val(0);
     $('#transCorp').val(0);
     $('#lodgingPerNight').val(0);
