@@ -14,15 +14,12 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- 모던 달력 라이브러리 Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
     <!-- 커스텀 리디자인 스타일시트 -->
     <link href="./assets/css/custom.css" rel="stylesheet" type="text/css">
 
     <style>
         @media print {
-            .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert, .flatpickr-calendar {
+            .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert {
                 display: none !important;
             }
             .content-wrapper {
@@ -60,152 +57,49 @@
         }
 
         /* =====================================================
-           [달력 리디자인 - 부트스트랩 스타일 프리미엄 커스텀]
+           [안정성 확보 - 부트스트랩 네이티브 달력 리디자인]
            ===================================================== */
         .datepicker-input-wrapper {
             position: relative;
         }
-        .datepicker-input-wrapper i {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            pointer-events: none;
-            font-size: 18px;
-            transition: color 0.2s ease;
-        }
-        .datepicker-input-wrapper:focus-within i {
-            color: #005691;
-        }
-        .custom-flatpickr {
+        /* 브라우저 기본 달력 팝업 인터페이스 크기 및 스타일 제어 */
+        .bootstrap-native-datepicker {
             background-color: #ffffff !important;
-            cursor: pointer !important;
-            padding-right: 40px !important;
-            border-radius: 8px !important;
             border: 1px solid #ced4da !important;
+            border-radius: 8px !important;
+            padding: 10px 14px !important;
+            font-size: 15px !important;
+            font-family: 'Pretendard', sans-serif !important;
+            color: #334155 !important;
+            cursor: pointer;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
         }
-        .custom-flatpickr:focus {
+        .bootstrap-native-datepicker:focus {
             border-color: #86b7fe !important;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+            outline: none;
         }
-
-        /* 부트스트랩 감성의 모던 달력 팝업 디자인 */
-        .flatpickr-calendar {
-            width: 350px !important;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important; /* Bootstrap shadow-lg */
-            border-radius: 12px !important;
-            padding: 12px !important;
-            background: #ffffff !important;
+        /* 기본 캘린더 아이콘 숨김 및 포스포 아이콘 배치 */
+        .bootstrap-native-datepicker::-webkit-calendar-picker-indicator {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: transparent;
+            cursor: pointer;
+            z-index: 2;
         }
-        .flatpickr-months {
-            margin-bottom: 8px;
-        }
-        .flatpickr-months .flatpickr-month {
-            color: #1e293b !important;
-            height: 40px !important;
-        }
-        .flatpickr-current-month {
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            padding-top: 4px !important;
-        }
-        .flatpickr-current-month .numInputWrapper {
-            width: 70px !important;
-            border-radius: 4px;
-        }
-        .flatpickr-months .flatpickr-prev-month, 
-        .flatpickr-months .flatpickr-next-month {
-            padding: 8px !important;
-            top: 5px !important;
-            border-radius: 6px !important;
-        }
-        .flatpickr-months .flatpickr-prev-month:hover, 
-        .flatpickr-months .flatpickr-next-month:hover {
-            background: #f1f5f9 !important;
-        }
-        .flatpickr-months .flatpickr-prev-month:hover svg, 
-        .flatpickr-months .flatpickr-next-month:hover svg {
-            fill: #005691 !important;
-        }
-        
-        /* 주말 및 요일 바 디자인 */
-        .flatpickr-weekdays {
-            height: 32px !important;
-            border-bottom: 1px solid #f1f5f9;
-            margin-bottom: 6px;
-        }
-        .flatpickr-weekday {
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            color: #64748b !important;
-        }
-        
-        /* 날짜 그리드 영역 영역 확대 */
-        .flatpickr-days {
-            width: 326px !important;
-        }
-        .dayContainer {
-            width: 326px !important;
-            min-width: 326px !important;
-            max-width: 326px !important;
-        }
-        .flatpickr-day {
-            max-width: 44px !important;
-            height: 44px !important;
-            line-height: 42px !important;
-            font-size: 14px !important;
-            font-weight: 500;
-            color: #334155;
-            border-radius: 8px !important;
-            margin: 1px !important;
-            border: 1px solid transparent !important;
-            transition: all 0.15s ease;
-        }
-        .flatpickr-day:hover {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-        }
-        .flatpickr-day.today {
-            border-color: #cbd5e1 !important;
-            color: #005691 !important;
-            font-weight: 700;
-        }
-        .flatpickr-day.today:hover {
-            background: #f1f5f9 !important;
-        }
-        
-        /* 활성화/선택 상태 - 고급스러운 그라데이션 및 네이비 톤 채택 */
-        .flatpickr-day.selected, 
-        .flatpickr-day.startRange, 
-        .flatpickr-day.endRange,
-        .flatpickr-day.selected:hover, 
-        .flatpickr-day.startRange:hover, 
-        .flatpickr-day.endRange:hover,
-        .flatpickr-day.selected:focus, 
-        .flatpickr-day.startRange:focus, 
-        .flatpickr-day.endRange:focus {
-            background: linear-gradient(135deg, #005691 0%, #003d66 100%) !important;
-            border-color: #003d66 !important;
-            color: #ffffff !important;
-            font-weight: 600;
-            box-shadow: 0 4px 6px -1px rgba(0, 86, 145, 0.3) !important;
-        }
-        
-        /* 기간 선택 범위(Range) 배경 스타일 */
-        .flatpickr-day.inRange {
-            background: #e6f2fa !important;
-            border-color: transparent !important;
-            color: #005691 !important;
-            border-radius: 0 !important;
-        }
-        .flatpickr-day.disabled, .flatpickr-day.disabled:hover {
-            color: #cbd5e1 !important;
-            background: transparent !important;
-            cursor: not-allowed !important;
+        .datepicker-input-wrapper i {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #005691; /* KECI 네이비 정체성 컬러 */
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 1;
         }
     </style>
 </head>
@@ -295,20 +189,20 @@
                                 <input type="text" id="purpose" class="form-control" placeholder="예: 정기 검사 및 협의" required>
                             </div>
                             
-                            <!-- 업그레이드된 부트스트랩 스타일 달력 구성 (시작일) -->
+                            <!-- 리디자인된 대형 네이티브 달력 (시작일) -->
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">출장 시작일</label>
                                 <div class="datepicker-input-wrapper">
-                                    <input type="text" id="startDate" class="form-control custom-flatpickr" placeholder="연도-월-일 선택" required>
+                                    <input type="date" id="startDate" class="form-control bootstrap-native-datepicker" required onchange="handleStartDateChange()">
                                     <i class="ph ph-calendar-blank"></i>
                                 </div>
                             </div>
                             
-                            <!-- 업그레이드된 부트스트랩 스타일 달력 구성 (종료일) -->
+                            <!-- 리디자인된 대형 네이티브 달력 (종료일) -->
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">출장 종료일</label>
                                 <div class="datepicker-input-wrapper">
-                                    <input type="text" id="endDate" class="form-control custom-flatpickr" placeholder="연도-월-일 선택" required>
+                                    <input type="date" id="endDate" class="form-control bootstrap-native-datepicker" required>
                                     <i class="ph ph-calendar-blank"></i>
                                 </div>
                             </div>
@@ -455,32 +349,14 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Flatpickr 스크립트 파일 및 한국어(ko) 팩 로드 -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
-
 <script>
-var startPicker, endPicker;
-
-$(document).ready(function() {
-    // Flatpickr 한국어 기본값 및 고급 설정 초기화
-    flatpickr.localize(flatpickr.l10n.ko);
-
-    startPicker = flatpickr("#startDate", {
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        disableMobile: "true",
-        onChange: function(selectedDates, dateStr, instance) {
-            endPicker.set("minDate", dateStr);
-        }
-    });
-
-    endPicker = flatpickr("#endDate", {
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        disableMobile: "true"
-    });
-});
+// 시작일이 변경되면 종료일의 선택 가능 최소 날짜를 제한하는 논리 로직
+function handleStartDateChange() {
+    var startVal = $('#startDate').val();
+    if (startVal) {
+        $('#endDate').attr('min', startVal);
+    }
+}
 
 var TRIP_CONFIG = {
   effectiveDate: "2025.12.18.",
@@ -626,9 +502,8 @@ function addTrip() {
     $('#vehicleDays').val(0);
     $('#nights').val(0);
     $('#freeMeals').val(0);
-    startPicker.clear();
-    endPicker.clear();
-    endPicker.set("minDate", null);
+    $('#startDate').val('');
+    $('#endDate').val('').removeAttr('min');
 }
 
 function deleteTrip(id) {
@@ -658,7 +533,7 @@ function renderTable() {
         sums.pMeal += t.personal.meal;
         sums.pLodging += t.personal.lodging;
         sums.pTrans += t.personal.trans;
-        sums.cLodging += t.corp.lodging;
+        sums.cLogging += t.corp.lodging;
         sums.cTrans += t.corp.trans;
         sums.total += t.calc.total;
 
