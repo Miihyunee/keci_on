@@ -4,26 +4,43 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KECI ON - 출장복명 신청</title>
+    <title>KECI ON - 출장여비 계산기</title>
     
-    <!-- 원본 Core 및 테마 스타일시트 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Bootstrap 5 CSS 및 라이브러리 스타일 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
-
-    <!-- 커스텀 리디자인 스타일시트 -->
+    
     <link href="./assets/css/custom.css" rel="stylesheet" type="text/css">
+
+    <style>
+        /* 미디어 인쇄 전용 스타일 설정 */
+        @media print {
+            .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert {
+                display: none !important;
+            }
+            .content-wrapper {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+        .print-only { display: none; }
+        .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .ctr { text-align: center; }
+    </style>
 </head>
 <body>
 
 <div class="page-content">
-    <!-- 좌측 사이드바 영역 -->
-    <div class="sidebar">
-        <!-- 로고 영역 -->
+    <div class="sidebar no-print">
         <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 0 20px !important; height: 56px !important; background-color: rgba(0, 0, 0, 0.15) !important;">
             <a href="javascript:location.reload();" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important; height: 100% !important;">
                 <img src="./assets/images/keci_white.png" alt="KECI" class="sidebar-logo-icon" style="height: 20px !important; width: auto !important; max-height: 20px !important; object-fit: contain !important; transform: none !important; margin: 0 !important; display: block !important;">
@@ -37,7 +54,6 @@
             <div class="profile-dept">정보안전팀</div>
         </div>
 
-        <!-- 좌측 네비게이션 -->
         <ul class="nav-sidebar">
             <li class="nav-item-header">근태</li>
             <li class="nav-item active">
@@ -48,212 +64,430 @@
         </ul>
     </div>
 
-    <!-- 메인 콘텐츠 영역 -->
     <div class="content-wrapper">
-<!-- 상단 바: 좌측 로고 / 구분선 / 우측 텍스트 레이아웃 -->
-<div class="main-navbar" style="height: auto !important; min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 12px 24px !important;">
-    <div class="calculator-header-box" style="display: flex !important; align-items: center !important; gap: 14px !important;">
-        
-        <!-- [좌측] 새로운 로고 이미지 삽입 영역 -->
-        <!-- 보유하신 이미지 파일 경로를 src="..."에 넣고, 필요에 따라 height(높이) 수치를 조절하세요 -->
-        <div class="logo-area" style="display: flex !important; align-items: center !important;">
-            <img src="./assets/images/logo.png" alt="로고" style="height: 32px !important; width: auto !important; object-fit: contain !important;">
-        </div>
-
-        <!-- [중앙] 세로 구분선 -->
-        <div class="title-indicator" style="width: 1px !important; height: 32px !important; background-color: #cbd5e1 !important;"></div>
-        
-        <!-- [우측] 텍스트 영역 플렉스 박스 -->
-        <div style="display: flex !important; flex-direction: column !important; justify-content: center !important; gap: 4px !important;">
-            <div style="display: flex !important; align-items: center !important; gap: 8px !important;">
-                <span style="font-size: 18px !important; font-weight: 700 !important; color: #005691 !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.5px !important;">출장 여비 계산기</span>
-                <span style="background-color: #1e293b !important; color: #ffffff !important; font-size: 11px !important; font-weight: 700 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: 0.5px !important; line-height: 1.2 !important;">BETA</span>
-            </div>
-            <div style="font-size: 12px !important; color: #64748b !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.2px !important;">
-                여비규정 <span style="font-weight: 500 !important;">[시행 2025.12.18.]</span> 기준 · 본원: 서울특별시 성동구
-            </div>
-        </div>
-
-    </div>
-</div>
-        <div class="content">
-            <form id="command" spellcheck="false" action="./add" method="post" autocomplete="off">
-
-                <!-- 카드 : 출장 복명 상세 정보 -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title m-0">출장 복명 상세 정보</h5>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="fnOpenModalBsnsTrList()"><i class="ph ph-file-search"></i> 원출장 문서 선택</button>
-                        <input type="hidden" name="bsnsTrSeq" readonly>
+        <div class="main-navbar no-print" style="height: auto !important; min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 12px 24px !important;">
+            <div class="calculator-header-box" style="display: flex !important; align-items: center !important; gap: 14px !important;">
+                <div class="logo-area" style="display: flex !important; align-items: center !important;">
+                    <img src="./assets/images/logo.png" alt="로고" style="height: 32px !important; width: auto !important; object-fit: contain !important;">
+                </div>
+                <div class="title-indicator" style="width: 1px !important; height: 32px !important; background-color: #cbd5e1 !important;"></div>
+                <div style="display: flex !important; flex-direction: column !important; justify-content: center !important; gap: 4px !important;">
+                    <div style="display: flex !important; align-items: center !important; gap: 8px !important;">
+                        <span style="font-size: 18px !important; font-weight: 700 !important; color: #005691 !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.5px !important;">출장 여비 계산기</span>
+                        <span style="background-color: #1e293b !important; color: #ffffff !important; font-size: 11px !important; font-weight: 700 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: 0.5px !important; line-height: 1.2 !important;">BETA</span>
                     </div>
-                    <div class="card-body">
-                        <!-- 동행자 설정 -->
-                        <div class="mb-4">
-                            <label class="form-label-custom">동행자 구성</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control companion-select-name" readonly placeholder="선택된 동행자가 없습니다.">
-                                <div class="companionArea"></div>
-                                <button type="button" class="btn btn-search-custom" onclick="fnOpenCompanionMemberSingleSelect()"><i class="ph ph-magnifying-glass"></i></button>
-                            </div>
-                            <div class="mt-2 companion-btn-area d-flex flex-wrap gap-1"></div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label-custom">출장지 구분 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-3 pt-2">
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="W"> 근무지 내</label>
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="D"> 국내</label>
-                                    <label class="radio-label"><input type="radio" name="domIntlType" value="I"> 국외</label>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label-custom">교통 수단 <span class="text-danger">*</span></label>
-                                <div class="d-flex flex-wrap gap-3 pt-2">
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="OWN_VHC"> 자가용</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="BSN_VHC"> 업무용차량</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="PUB_TRN"> 대중교통</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="AIR_PLN"> 항공편</label>
-                                    <label class="checkbox-label"><input type="checkbox" name="vehicleInfo.cd[]" value="ETC_TRN"> 기타</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 기간 지정 -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장 시작일시 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-2">
-                                    <input type="date" name="bsnsTrStartDate" class="form-control">
-                                    <input type="text" name="bsnsTrStartTime" class="form-control timepicker" readonly placeholder="시간 선택">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장 종료일시 <span class="text-danger">*</span></label>
-                                <div class="d-flex gap-2">
-                                    <input type="date" name="bsnsTrEndDate" class="form-control">
-                                    <input type="text" name="bsnsTrEndTime" class="form-control timepicker" readonly placeholder="시간 선택">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 목적지 및 방문처 -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label-custom">출장지 <span class="text-danger">*</span></label>
-                                <input type="text" name="location" class="form-control" placeholder="예: 세종정부청사">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-custom">방문처 <span class="text-danger">*</span></label>
-                                <input type="text" name="site" class="form-control" placeholder="예: 행정안전부">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label-custom">출장 결과 요약</label>
-                            <textarea name="workResult" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-custom">수행 업무 상세 내용</label>
-                            <textarea name="workDetail" class="form-control" rows="4"></textarea>
-                        </div>
-
-                        <!-- 비용 산정 테이블 -->
-                        <div class="mb-4">
-                            <label class="form-label-custom">개별 여비 산정 내역</label>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle text-center m-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>이름</th>
-                                            <th>일비</th>
-                                            <th>식비</th>
-                                            <th>숙박비</th>
-                                            <th>교통비</th>
-                                            <th>기타여비</th>
-                                            <th>개별 합계</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="companionCosts">
-                                        <!-- 스크립트로 동적 로드 -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- 통합 비용 대시보드 그리드 -->
-                        <div class="cost-summary-grid">
-                            <div class="cost-box total">
-                                <label>출장비 총 합계</label>
-                                <input type="text" name="totalCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 일비</label>
-                                <input type="text" name="dayCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 식비</label>
-                                <input type="text" name="foodCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 숙박비</label>
-                                <input type="text" name="stayCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 교통비</label>
-                                <input type="text" name="transCost" value="0" readonly>
-                            </div>
-                            <div class="cost-box">
-                                <label>총 기타여비</label>
-                                <input type="text" name="otherCost" value="0" readonly>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="card-footer bg-light d-flex justify-content-between p-3">
-                        <button type="button" class="btn btn-secondary px-4">취소</button>
-                        <button type="button" class="btn btn-primary px-4" onclick="fnSave()"><i class="ph ph-paper-plane-right"></i> 복명서 제출</button>
+                    <div style="font-size: 12px !important; color: #64748b !important; font-family: 'Pretendard', sans-serif !important; letter-spacing: -0.2px !important;">
+                        여비규정 <span style="font-weight: 500 !important;">[시행 2025.12.18.]</span> 기준 · 본원: 서울특별시 성동구
                     </div>
                 </div>
-            </form>
+            </div>
+        </div>
+
+        <div class="print-only mb-4 text-center">
+            <h2>출장 여비 정산 내역서</h2>
+            <p class="text-muted">여비규정 [시행 2025.12.18.] 기준</p>
+        </div>
+
+        <div class="content">
+            <div class="card no-print mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title m-0"><i class="ph ph-pencil-line"></i> 출장 내역 입력</h5>
+                </div>
+                <div class="card-body">
+                    <form id="tripForm" onsubmit="event.preventDefault(); addTrip();">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-semibold">출장 구분</label>
+                                <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
+                                    <option value="외">근무지 외 출장 (제14조)</option>
+                                    <option value="내">근무지 내 출장 (제16조)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">직급 구분</label>
+                                <select id="grade" class="form-select">
+                                    <option value="2">임원 및 대등한 직원</option>
+                                    <option value="3" selected>일반 직원</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">출장자 성명</label>
+                                <input type="text" id="name" class="form-control" placeholder="홍길동" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">출장지</label>
+                                <input type="text" id="dest" class="form-control" placeholder="부산지사 등" required>
+                            </div>
+
+                            <div class="col-md-3 outer-field">
+                                <label class="form-label">지역 분류</label>
+                                <select id="region" class="form-select">
+                                    <option value="서울">서울시</option>
+                                    <option value="광역시">광역시</option>
+                                    <option value="기타" selected>기타 지역</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">교통 수단</label>
+                                <select id="vehicle" class="form-select" onchange="toggleVehicleFields()">
+                                    <option value="public">대중교통 / 자가용</option>
+                                    <option value="company">업무용 / 전용 차량</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 outer-field">
+                                <label class="form-label">출장 일수 / 숙박 박수</label>
+                                <div class="input-group">
+                                    <input type="number" id="days" class="form-control" value="1" min="1">
+                                    <span class="input-group-text">일</span>
+                                    <input type="number" id="nights" class="form-control" value="0" min="0">
+                                    <span class="input-group-text">박</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 outer-field">
+                                <label class="form-label">1박당 숙박비 (실비)</label>
+                                <input type="number" id="lodgingPerNight" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-3 outer-field">
+                                <label class="form-label">무료 식사 횟수</label>
+                                <input type="number" id="freeMeals" class="form-control" value="0" min="0" max="100">
+                            </div>
+
+                            <div class="col-md-3 inner-field d-none">
+                                <label class="form-label">소요 시간</label>
+                                <select id="innerHours" class="form-select">
+                                    <option value="4plus">4시간 이상</option>
+                                    <option value="4under">4시간 미만</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 inner-field d-none">
+                                <label class="form-label">근무지내 운행여부</label>
+                                <div class="pt-2">
+                                    <label class="form-check-label me-3">
+                                        <input type="checkbox" id="innerVehicle" class="form-check-input"> 자차/공용차 운행
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">교통비 (개인카드/현금)</label>
+                                <input type="number" id="transPersonal" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">교통비 (법인카드)</label>
+                                <input type="number" id="transCorp" class="form-control" value="0" min="0">
+                            </div>
+                            <div class="col-md-3 outer-field">
+                                <label class="form-label">숙박비 결제 구분</label>
+                                <select id="lodgingPayment" class="form-select">
+                                    <option value="개인카드">개인카드 / 현금</option>
+                                    <option value="법인카드">법인카드</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-primary px-4"><i class="ph ph-plus-circle"></i> 목록에 추가</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                    <h5 class="card-title m-0"><i class="ph ph-table"></i> 여비 계산 내역 목록</h5>
+                    <div class="no-print d-flex gap-2">
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportToExcel()"><i class="ph ph-file-xls"></i> 엑셀 저장</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()"><i class="ph ph-printer"></i> 인쇄하기</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle m-0 text-center" id="resultTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th rowspan="2" class="no-print" style="width: 50px;">삭제</th>
+                                    <th rowspan="2">구분</th>
+                                    <th rowspan="2">성명</th>
+                                    <th rowspan="2">출장지</th>
+                                    <th rowspan="2">기간/시간</th>
+                                    <th colspan="4" class="table-primary">지급 여비 (개인 예금)</th>
+                                    <th colspan="2" class="table-warning">회사 처리 (법인 예금)</th>
+                                    <th rowspan="2" class="table-success">총합계</th>
+                                </tr>
+                                <tr>
+                                    <th>일비</th>
+                                    <th>식비</th>
+                                    <th>숙박비</th>
+                                    <th>교통비</th>
+                                    <th>숙박비</th>
+                                    <th>교통비</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripTableBody">
+                                <tr>
+                                    <td colspan="12" class="text-muted py-4">추가된 출장 내역이 없습니다. 내역을 입력한 뒤 추가해 주세요.</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="table-light font-weight-bold" id="tripTableFoot"></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
-<!-- 인프라 벤더 라이브러리 -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- 가상 Mock 유틸 -->
 <script>
-    window.StringUtils = {
-        isBlank: function(str) { return !str || str.trim() === ''; },
-        unComma: function(str) { return str ? str.toString().replace(/,/g, '') : '0'; },
-        numberFormat: function(num) { return Number(num).toLocaleString(); },
-        numberCurrency: function(e) { 
-            let val = e.target.value.replace(/[^0-9]/g, '');
-            e.target.value = val ? Number(val).toLocaleString() : '';
+// [Config Layer] 여비규정 단가 정의 테이블
+var TRIP_CONFIG = {
+  effectiveDate: "2025.12.18.",
+  outer: {
+    ilbiPerDay: 25000,
+    ilbiVehiclePerDay: 12500,
+    mealPerDay: 25000,
+    lodgingCap: { "서울": 100000, "광역시": 80000, "기타": 70000 }
+  },
+  inner: {
+    ilbi4hPlus: 20000,
+    ilbiUnder4h: 10000,
+    vehicleDeduct: 10000
+  }
+};
+
+// [Calculation Layer] 여비 계산 핵심 엔진 핵심 컨버팅 함수
+function calcTrip(data, cfg) {
+  var c = cfg || TRIP_CONFIG;
+  var lodgingCap = c.outer.lodgingCap;
+  var isInner = data.tripType === '내';
+
+  var ilbi = 0, meal = 0, lodging = 0, transport = data.transPersonal + data.transCorp;
+  var ilbiPerDay = 0, ilbiVehiclePerDay = 0, vDays = 0, pubDays = 0;
+  var mealDeduct = 0, mealFull = 0;
+
+  if (isInner) {
+    var base = (data.innerHours === '4plus') ? c.inner.ilbi4hPlus : c.inner.ilbiUnder4h;
+    ilbi = base;
+    if (data.innerVehicle) {
+      ilbi -= c.inner.vehicleDeduct;
+    }
+    if (ilbi < 0) ilbi = 0;
+  } else {
+    ilbiPerDay = c.outer.ilbiPerDay;
+    ilbiVehiclePerDay = c.outer.ilbiVehiclePerDay;
+
+    if (data.vehicle === 'company') {
+      vDays = data.days;
+      ilbi = ilbiVehiclePerDay * vDays;
+    } else {
+      pubDays = data.days;
+      ilbi = ilbiPerDay * pubDays;
+    }
+
+    mealFull = c.outer.mealPerDay * data.days;
+    mealDeduct = data.freeMeals * Math.floor((c.outer.mealPerDay / 3) / 10) * 10;
+    meal = Math.max(0, mealFull - mealDeduct);
+
+    if (data.nights > 0) {
+      var cap = lodgingCap[data.region];
+      lodging = Math.min(data.lodgingPerNight, cap) * data.nights;
+    }
+  }
+
+  var total = ilbi + meal + lodging + transport;
+  return { 
+    ilbi: ilbi, meal: meal, lodging: lodging, transport: transport, total: total,
+    isInner: isInner 
+  };
+}
+
+// [UI & Presentation Layer] 다중 출장 내역 관리 리스트 배열 상태 변수
+var tripList = [];
+
+function toggleTripTypeFields() {
+    var type = $('#tripType').val();
+    if (type === '내') {
+        $('.outer-field').addClass('d-none');
+        $('.inner-field').removeClass('d-none');
+    } else {
+        $('.outer-field').removeClass('d-none');
+        $('.inner-field').addClass('d-none');
+    }
+}
+
+function toggleVehicleFields() {
+    // 필요 시 UI 변경 제어용 훅 확장
+}
+
+function addTrip() {
+    var tripType = $('#tripType').val();
+    var data = {
+        tripType: tripType,
+        grade: $('#grade').val(),
+        name: $('#name').val().trim(),
+        dest: $('#dest').val().trim(),
+        vehicle: $('#vehicle').val(),
+        days: parseInt($('#days').val()) || 1,
+        nights: parseInt($('#nights').val()) || 0,
+        region: $('#region').val(),
+        lodgingPerNight: parseInt($('#lodgingPerNight').val()) || 0,
+        freeMeals: parseInt($('#freeMeals').val()) || 0,
+        innerHours: $('#innerHours').val(),
+        innerVehicle: $('#innerVehicle').prop('checked'),
+        transPersonal: parseInt($('#transPersonal').val()) || 0,
+        transCorp: parseInt($('#transCorp').val()) || 0,
+        lodgingPayment: $('#lodgingPayment').val()
+    };
+
+    var result = calcTrip(data);
+    
+    // 최종 바인딩 테이블 스토리지 가공 객체 생성
+    var item = {
+        id: Date.now(),
+        raw: data,
+        calc: result,
+        personal: {
+            ilbi: result.ilbi,
+            meal: result.meal,
+            lodging: (data.lodgingPayment === '개인카드') ? result.lodging : 0,
+            trans: data.transPersonal
+        },
+        corp: {
+            lodging: (data.lodgingPayment === '법인카드') ? result.lodging : 0,
+            trans: data.transCorp
         }
     };
-    window.FormUtils = {
-        getFormData: function() {
-            return {
-                data: {
-                    memberId: $('[name=memberId]').val(),
-                    memberName: $('[name=memberName]').val(),
-                    companions: []
-                }
-            };
-        },
-        checkSubmit: function() { return false; }
-    };
-    window.ApprovalUtils = { processApproval: function() { return true; } };
-    window.AjaxUtils = { confirmSave: function(url, data) { Swal.fire('제출 완료', '정상 처리되었습니다.', 'success'); } };
-</script>
 
-<script src="./assets/js/bsns-tr-logic.js"></script>
+    tripList.push(item);
+    renderTable();
+    
+    // 입력 폼 초기화 (성명, 출장지만 초기화하여 연속입력 편의 보장)
+    $('#name').val('');
+    $('#dest').val('');
+    $('#transPersonal').val(0);
+    $('#transCorp').val(0);
+    $('#lodgingPerNight').val(0);
+}
+
+function deleteTrip(id) {
+    tripList = tripList.filter(function(t) { return t.id !== id; });
+    renderTable();
+}
+
+function renderTable() {
+    var tbody = $('#tripTableBody');
+    var tfoot = $('#tripTableFoot');
+    tbody.empty();
+    tfoot.empty();
+
+    if (tripList.length === 0) {
+        tbody.append('<tr><td colspan="12" class="text-muted py-4">추가된 출장 내역이 없습니다. 내역을 입력한 뒤 추가해 주세요.</td></tr>');
+        return;
+    }
+
+    var sums = { pIlbi:0, pMeal:0, pLodging:0, pTrans:0, cLodging:0, cTrans:0, total:0 };
+
+    tripList.forEach(function(t) {
+        var periodStr = t.raw.tripType === '내' ? (t.raw.innerHours === '4plus' ? '4시간 이상' : '4시간 미만') : (t.raw.days + '일 ' + t.raw.nights + '박');
+        var typeStr = t.raw.tripType === '내' ? '근무지내' : '근무지외';
+        
+        sums.pIlbi += t.personal.ilbi;
+        sums.pMeal += t.personal.meal;
+        sums.pLodging += t.personal.lodging;
+        sums.pTrans += t.personal.trans;
+        sums.cLodging += t.corp.lodging;
+        sums.cTrans += t.corp.trans;
+        sums.total += t.calc.total;
+
+        var tr = '<tr>' +
+            '<td class="no-print"><button class="btn btn-outline-danger btn-sm py-0 px-2" onclick="deleteTrip(' + t.id + ')"><i class="ph ph-trash"></i></button></td>' +
+            '<td>' + typeStr + '</td>' +
+            '<td>' + t.raw.name + '</td>' +
+            '<td>' + t.raw.dest + '</td>' +
+            '<td>' + periodStr + '</td>' +
+            '<td class="num">' + formatNum(t.personal.ilbi) + '</td>' +
+            '<td class="num">' + formatNum(t.personal.meal) + '</td>' +
+            '<td class="num">' + formatNum(t.personal.lodging) + '</td>' +
+            '<td class="num">' + formatNum(t.personal.trans) + '</td>' +
+            '<td class="num">' + formatNum(t.corp.lodging) + '</td>' +
+            '<td class="num">' + formatNum(t.corp.trans) + '</td>' +
+            '<td class="num font-weight-bold text-success">' + formatNum(t.calc.total) + '</td>' +
+            '</tr>';
+        tbody.append(tr);
+    });
+
+    var footTr = '<tr>' +
+        '<td class="no-print">합계</td>' +
+        '<td colspan="4" class="print-only-merge">총 합계 내역</td>' +
+        '<td class="num">' + formatNum(sums.pIlbi) + '</td>' +
+        '<td class="num">' + formatNum(sums.pMeal) + '</td>' +
+        '<td class="num">' + formatNum(sums.pLodging) + '</td>' +
+        '<td class="num">' + formatNum(sums.pTrans) + '</td>' +
+        '<td class="num">' + formatNum(sums.cLodging) + '</td>' +
+        '<td class="num">' + formatNum(sums.cTrans) + '</td>' +
+        '<td class="num text-primary">' + formatNum(sums.total) + '</td>' +
+        '</tr>';
+    tfoot.append(footTr);
+    
+    // 인쇄 시 레이아웃 정렬을 위한 핵 스크립트 대응
+    if(window.matchMedia('print').matches) {
+        $('.print-only-merge').attr('colspan', '4');
+    } else {
+        $('.print-only-merge').attr('colspan', '3');
+    }
+}
+
+function formatNum(num) {
+    return num > 0 ? num.toLocaleString('ko-KR') : '-';
+}
+
+function exportToExcel() {
+    if (tripList.length === 0) {
+        alert('저장할 여비 계산 내역이 없습니다.');
+        return;
+    }
+    
+    var style = '<style>table { border-collapse:collapse; } th { background:#f1f3f4; border:1px solid #cbd5e1; } td { border:1px solid #cbd5e1; } .num { text-align:right; }</style>';
+    var thead = $('#resultTable thead').html();
+    var tbody = '';
+    
+    var sums = { pIlbi:0, pMeal:0, pLodging:0, pTrans:0, cLodging:0, cTrans:0, total:0 };
+    tripList.forEach(function(t) {
+        var periodStr = t.raw.tripType === '내' ? (t.raw.innerHours === '4plus' ? '4시간 이상' : '4시간 미만') : (t.raw.days + '일 ' + t.raw.nights + '박');
+        var typeStr = t.raw.tripType === '내' ? '근무지내' : '근무지외';
+        
+        sums.pIlbi += t.personal.ilbi; sums.pMeal += t.personal.meal; sums.pLodging += t.personal.lodging;
+        sums.pTrans += t.personal.trans; sums.cLodging += t.corp.lodging; sums.cTrans += t.corp.trans; sums.total += t.calc.total;
+
+        tbody += '<tr>' +
+            '<td>' + typeStr + '</td><td>' + t.raw.name + '</td><td>' + t.raw.dest + '</td><td>' + periodStr + '</td>' +
+            '<td class="num">' + t.personal.ilbi + '</td><td class="num">' + t.personal.meal + '</td><td class="num">' + t.personal.lodging + '</td><td class="num">' + t.personal.trans + '</td>' +
+            '<td class="num">' + t.corp.lodging + '</td><td class="num">' + t.corp.trans + '</td><td class="num">' + t.calc.total + '</td>' +
+            '</tr>';
+    });
+
+    tbody += '<tr style="font-weight:bold; background:#f8fafc;">' +
+        '<td colspan="4">합계</td>' +
+        '<td class="num">' + sums.pIlbi + '</td><td class="num">' + sums.pMeal + '</td><td class="num">' + sums.pLodging + '</td><td class="num">' + sums.pTrans + '</td>' +
+        '<td class="num">' + sums.cLodging + '</td><td class="num">' + sums.cTrans + '</td><td class="num">' + sums.total + '</td>' +
+        '</tr>';
+
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' + style + '</head><body><table>' + thead + '<tbody>' + tbody + '</tbody></table></body></html>';
+    // 무분별한 0번째 노드 제거용(삭제 컬럼 배제) 
+    html = html.replace(/<th rowspan="2" class="no-print" style="width: 50px;">삭제<\/th>/g, '');
+
+    var blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '출장여비정산내역_' + new Date().toISOString().slice(0,10) + '.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+</script>
 
 </body>
 </html>
