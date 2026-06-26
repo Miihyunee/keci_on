@@ -6,20 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KECI ON - 출장여비 계산기</title>
     
-    <!-- 원본 Core 및 테마 스타일시트 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- 커스텀 리디자인 스타일시트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
     <link href="./assets/css/custom.css" rel="stylesheet" type="text/css">
 
     <style>
         @media print {
-            .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert {
+            .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert, .flatpickr-calendar {
                 display: none !important;
             }
             .content-wrapper {
@@ -45,7 +44,6 @@
         .font-weight-semibold { font-weight: 600; }
         .font-weight-bold { font-weight: 700; }
         
-        /* 섹션 구분을 명확하게 하기 위한 카드 간격 설정 */
         .section-card {
             margin-bottom: 20px !important;
             border: 1px solid #e2e8f0 !important;
@@ -56,12 +54,97 @@
             font-weight: 600 !important;
             color: #1e293b !important;
         }
+
+        /* =====================================================
+           [달력 리디자인 - Flatpickr 프리미엄 커스텀 스타일]
+           ===================================================== */
+        .datepicker-input-wrapper {
+            position: relative;
+        }
+        .datepicker-input-wrapper i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+            font-size: 18px;
+        }
+        .custom-flatpickr {
+            background-color: #ffffff !important;
+            cursor: pointer !important;
+            padding-right: 40px !important;
+        }
+        /* 달력 팝업 크기 대폭 확대 및 고급화 */
+        .flatpickr-calendar {
+            width: 340px !important;
+            font-family: 'Pretendard', sans-serif !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            border-radius: 8px !important;
+            padding: 6px !important;
+        }
+        .flatpickr-days {
+            width: 328px !important;
+        }
+        .dayContainer {
+            width: 328px !important;
+            min-width: 328px !important;
+            max-width: 328px !important;
+        }
+        .flatpickr-day {
+            max-width: 44px !important;
+            height: 44px !important;
+            line-height: 44px !important;
+            font-size: 14px !important;
+            border-radius: 6px !important;
+            margin: 1px !important;
+        }
+        /* KECI 브랜드 정체성 컬러 테마 매칭 (#005691) */
+        .flatpickr-day.selected, 
+        .flatpickr-day.startRange, 
+        .flatpickr-day.endRange, 
+        .flatpickr-day.selected.inRange, 
+        .flatpickr-day.startRange.inRange, 
+        .flatpickr-day.endRange.inRange, 
+        .flatpickr-day.selected:focus, 
+        .flatpickr-day.startRange:focus, 
+        .flatpickr-day.endRange:focus, 
+        .flatpickr-day.selected:hover, 
+        .flatpickr-day.startRange:hover, 
+        .flatpickr-day.endRange:hover {
+            background: #005691 !important;
+            border-color: #005691 !important;
+            color: #fff !important;
+            font-weight: 600;
+        }
+        .flatpickr-day.inRange {
+            background: #e0f2fe !important;
+            border-color: transparent !important;
+            box-shadow: -5px 0 0 #e0f2fe, 5px 0 0 #e0f2fe !important;
+        }
+        .flatpickr-months .flatpickr-month {
+            color: #1e293b !important;
+            fill: #1e293b !important;
+            height: 34px !important;
+        }
+        .flatpickr-current-month {
+            font-size: 16px !important;
+            font-weight: 600 !important;
+        }
+        .flatpickr-current-month .numInputWrapper {
+            width: 65px !important;
+        }
+        .flatpickr-weekday {
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #64748b !important;
+        }
     </style>
 </head>
 <body>
 
 <div class="page-content">
-    <!-- 좌측 사이드바 영역 -->
     <div class="sidebar no-print">
         <div class="sidebar-header" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 0 20px !important; height: 56px !important; background-color: rgba(0, 0, 0, 0.15) !important;">
             <a href="javascript:location.reload();" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important; height: 100% !important;">
@@ -86,9 +169,7 @@
         </ul>
     </div>
 
-    <!-- 메인 콘텐츠 영역 -->
     <div class="content-wrapper">
-        <!-- 상단 바 레이아웃 -->
         <div class="main-navbar no-print" style="height: auto !important; min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 12px 24px !important;">
             <div class="calculator-header-box" style="display: flex !important; align-items: center !important; gap: 14px !important;">
                 <div class="logo-area" style="display: flex !important; align-items: center !important;">
@@ -107,17 +188,14 @@
             </div>
         </div>
 
-        <!-- 인쇄용 타이틀 헤더 -->
         <div class="print-only mb-4 text-center">
             <h2>출장 여비 정산 내역서</h2>
             <p class="text-muted">여비규정 [시행 2025.12.18.] 기준</p>
         </div>
 
         <div class="content">
-            <!-- 전체를 하나의 form으로 감싸 데이터 전송 보장 -->
             <form id="tripForm" onsubmit="event.preventDefault(); addTrip();">
                 
-                <!-- [섹션 1] 기본 정보 입력 카드 -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-user-focus text-primary me-2"></i> 1. 출장자 기본 정보</span>
@@ -144,19 +222,26 @@
                                 <label class="form-label font-weight-semibold">출장 용무 (목적)</label>
                                 <input type="text" id="purpose" class="form-control" placeholder="예: 정기 검사 및 협의" required>
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">출장 시작일</label>
-                                <input type="date" id="startDate" class="form-control" required>
+                                <div class="datepicker-input-wrapper">
+                                    <input type="text" id="startDate" class="form-control custom-flatpickr" placeholder="연도-월-일 선택" required>
+                                    <i class="ph ph-calendar-blank"></i>
+                                </div>
                             </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">출장 종료일</label>
-                                <input type="date" id="endDate" class="form-control" required>
+                                <div class="datepicker-input-wrapper">
+                                    <input type="text" id="endDate" class="form-control custom-flatpickr" placeholder="연도-월-일 선택" required>
+                                    <i class="ph ph-calendar-blank"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- [섹션 2] 출장 조건 및 정산 설정 카드 -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-sliders text-success me-2"></i> 2. 여비 및 정산 조건 설정</span>
@@ -171,7 +256,6 @@
                                 </select>
                             </div>
 
-                            <!-- [근무지 외 전용 필드] -->
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">지역 분류 (숙박상한액 지역)</label>
                                 <select id="region" class="form-select">
@@ -211,7 +295,6 @@
                                 <input type="number" id="freeMeals" class="form-control" value="0" min="0">
                             </div>
 
-                            <!-- [근무지 내 전용 필드] -->
                             <div class="col-md-4 inner-field d-none">
                                 <label class="form-label font-weight-semibold">출장 소요 시간</label>
                                 <select id="innerHours" class="form-select">
@@ -228,7 +311,6 @@
                                 </div>
                             </div>
 
-                            <!-- [교통비 정산 세부 구분 분리] -->
                             <div class="col-md-6">
                                 <label class="form-label font-weight-semibold">실비 교통비 (개인카드 영수증 증빙)</label>
                                 <input type="number" id="transPersonal" class="form-control" value="0" min="0">
@@ -246,7 +328,6 @@
                 </div>
             </form>
 
-            <!-- [결과 테이블 섹션] -->
             <div class="card section-card">
                 <div class="card-header d-flex justify-content-between align-items-center bg-light py-3">
                     <span class="section-title"><i class="ph ph-table text-warning me-2"></i> 여비 정산 명세 목록</span>
@@ -298,7 +379,33 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
 <script>
+var startPicker, endPicker;
+
+$(document).ready(function() {
+    // Flatpickr 한국어 기본값 및 고급 설정 초기화
+    flatpickr.localize(flatpickr.l10n.ko);
+
+    startPicker = flatpickr("#startDate", {
+        dateFormat: "Y-m-d",
+        allowInput: false,
+        disableMobile: "true",
+        onChange: function(selectedDates, dateStr, instance) {
+            // 시작일 선택 시 종료일 달력의 최소 선택 가능 날짜(minDate)를 자동 제한함
+            endPicker.set("minDate", dateStr);
+        }
+    });
+
+    endPicker = flatpickr("#endDate", {
+        dateFormat: "Y-m-d",
+        allowInput: false,
+        disableMobile: "true"
+    });
+});
+
 var TRIP_CONFIG = {
   effectiveDate: "2025.12.18.",
   outer: {
@@ -434,7 +541,7 @@ function addTrip() {
     tripList.push(item);
     renderTable();
     
-    // 폼 초기화 (핵심 인적사항 입력 필드만 초기화 후 다음 입력을 유도)
+    // 폼 초기화 후 달력 한계치 및 입력값 리셋
     $('#name').val('');
     $('#purpose').val('');
     $('#dest').val('');
@@ -444,6 +551,9 @@ function addTrip() {
     $('#vehicleDays').val(0);
     $('#nights').val(0);
     $('#freeMeals').val(0);
+    startPicker.clear();
+    endPicker.clear();
+    endPicker.set("minDate", null);
 }
 
 function deleteTrip(id) {
@@ -532,7 +642,7 @@ function exportToExcel() {
         var typeStr = t.raw.tripType === '내' ? '근무지내' : '근무지외';
         
         sums.pIlbi += t.personal.ilbi; sums.pMeal += t.personal.meal; sums.pLodging += t.personal.lodging;
-        sums.pTrans += t.personal.trans; sums.cLogging += t.corp.lodging; sums.cTrans += t.corp.trans; sums.total += t.calc.total;
+        sums.pTrans += t.personal.trans; sums.cLodging += t.corp.lodging; sums.cTrans += t.corp.trans; sums.total += t.calc.total;
 
         tbody += '<tr>' +
             '<td>' + typeStr + '</td><td>' + t.raw.gradeStr + '</td><td>' + t.raw.name + '</td>' +
@@ -545,7 +655,7 @@ function exportToExcel() {
     tbody += '<tr style="font-weight:bold; background:#f8fafc;">' +
         '<td colspan="6">합계</td>' +
         '<td class="num">' + sums.pIlbi + '</td><td class="num">' + sums.pMeal + '</td><td class="num">' + sums.pLodging + '</td><td class="num">' + sums.pTrans + '</td>' +
-        '<td class="num">' + sums.cLogging + '</td><td class="num">' + sums.cTrans + '</td><td class="num">' + sums.total + '</td>' +
+        '<td class="num">' + sums.cLodging + '</td><td class="num">' + sums.cTrans + '</td><td class="num">' + sums.total + '</td>' +
         '</tr>';
 
     var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' + style + '</head><body><table>' + thead + '<tbody>' + tbody + '</tbody></table></body></html>';
