@@ -84,24 +84,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
             border-radius: 8px !important;
         }
-        .datepicker table tr td, 
-        .datepicker table tr th {
-            width: 38px !important;
-            height: 38px !important;
-            border-radius: 6px !important;
-            border: none !important;
-        }
-        .datepicker table tr td.active, 
-        .datepicker table tr td.active:hover {
-            background-image: none !important;
-            background-color: #005691 !important;
-            color: #ffffff !important;
-            text-shadow: none !important;
-        }
-        .datepicker table tr td.today {
-            background-color: #f1f5f9 !important;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
@@ -115,11 +97,17 @@
                 <span class="sidebar-logo-text" style="display: inline-block !important; color: #ffffff !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Pretendard', sans-serif !important; visibility: visible !important; opacity: 1 !important; line-height: 1 !important; letter-spacing: -0.3px !important;">KECI ON</span>
             </a>
         </div>
+        
+        <div class="user-profile-box">
+            <div class="user-avatar-mock"><i class="ph ph-user"></i></div>
+            <div class="profile-name">박미현</div>
+            <div class="profile-dept">정보안전팀</div>
+        </div>
 
         <ul class="nav-sidebar">
             <li class="nav-item-header">근태</li>
             <li class="nav-item active">
-                <a href="javascript:location.reload();" onclick="event.stopPropagation(); location.reload();" class="nav-link">
+                <a href="javascript:location.reload();" class="nav-link">
                     <i class="ph ph-note-pencil"></i><span>출장 복명 신청</span>
                 </a>
             </li>
@@ -163,10 +151,10 @@
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label font-weight-semibold">직위 구분</label>
+                                <!-- [수정] 제1호 및 제2호 2개 체계로 간소화 -->
                                 <select id="grade" class="form-select">
-                                    <option value="3" selected>일반 직원</option>
-                                    <option value="2">임원 및 대등한 직원</option>
-                                    <option value="1">원장 또는 이에 준하는 직위</option>
+                                    <option value="1">제1호 (원장, 임원, 2급이상 보직자)</option>
+                                    <option value="2" selected>제2호 (제1호 외 임직원)</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -207,7 +195,8 @@
                             <div class="col-md-3">
                                 <label class="form-label font-weight-semibold">출장 구분</label>
                                 <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
-                                    <option value="외">근무지 외 출장 (제14조)</option>
+                                    <option value="외_시외" selected>근무지 외 시외출장 (제14조)</option>
+                                    <option value="외_시내">근무지 외 시내출장 (제15조)</option>
                                     <option value="내">근무지 내 출장 (제16조)</option>
                                 </select>
                             </div>
@@ -221,33 +210,34 @@
                             </div>
                             <div class="col-md-3 outer-field">
                                 <label class="form-label font-weight-semibold">교통수단 (일비 적용)</label>
+                                <!-- [수정] 대중교통, 업무용차량/자가용, 전용차량 3종 복원 -->
                                 <select id="vehicle" class="form-select" onchange="toggleVehicleFields()">
-                                    <option value="public">대중교통 / 자가용 (일비 100% 지급)</option>
-                                    <option value="company">공용차량 / 전용차량 (일비 50% 감액)</option>
+                                    <option value="public">대중교통 (일비 100%)</option>
+                                    <option value="company">업무용 차량 / 자가용 (일비 50% 감액)</option>
+                                    <option value="private">전용 차량 (일비 50% 감액)</option>
                                 </select>
                             </div>
                             
-                            <!-- [수정] 대입 오류 방지를 위해 모든 숫자 필드의 type을 "text"로 변경하고 inputmode 제어 추가 -->
                             <div class="col-md-3 outer-field" id="vehicleDaysWrapper" style="display:none;">
-                                <label class="form-label font-weight-semibold">공용차 이용 일수</label>
+                                <label class="form-label font-weight-semibold">감액 대상 차량 이용 일수</label>
                                 <input type="text" id="vehicleDays" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-3 outer-field" id="nightsWrapper">
                                 <label class="form-label font-weight-semibold">숙박 박수 (0박인 경우 0)</label>
                                 <input type="text" id="nights" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-3 outer-field" id="lodgingPerNightWrapper">
                                 <label class="form-label font-weight-semibold">1박당 실제 숙박비</label>
                                 <input type="text" id="lodgingPerNight" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-3 outer-field" id="lodgingPaymentWrapper">
                                 <label class="form-label font-weight-semibold">숙박비 결제 구분</label>
                                 <select id="lodgingPayment" class="form-select">
                                     <option value="개인카드">개인카드 / 현금 지출</option>
                                     <option value="법인카드">법인카드 지출</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-3 outer-field" id="freeMealsWrapper">
                                 <label class="form-label font-weight-semibold">제공받은 식사 횟수 (차감용)</label>
                                 <input type="text" id="freeMeals" class="form-control number-only-field" value="0" inputmode="numeric">
                             </div>
@@ -359,38 +349,41 @@ $(document).ready(function() {
         }
     });
 
-    /* =====================================================
-       [완벽 해결] 선행 00 강제 소거 알고리즘이 적용된 필터 핸들러
-       ===================================================== */
+    /* 천 단위 콤마 자동 서식화 및 선행 0 제어 */
     $('.number-only-field').on({
         'focus': function() {
-            if ($(this).val() === '0') {
+            var rawVal = $(this).val().replace(/,/g, '');
+            if (rawVal === '0') {
                 $(this).val('');
+            } else {
+                $(this).val(rawVal);
             }
         },
         'blur': function() {
-            if ($(this).val().trim() === '') {
+            var rawVal = $(this).val().replace(/,/g, '').trim();
+            if (rawVal === '') {
                 $(this).val('0');
+            } else {
+                $(this).val(Number(rawVal).toLocaleString('ko-KR'));
             }
         },
         'keydown': function(e) {
-            // 숫자, 백스페이스, 삭제, 탭, 화살표 이동 키를 제외한 문자 입력 제한
             var allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
             if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
                 e.preventDefault();
             }
         },
         'input': function() {
-            // 숫자가 아닌 가공 문자 일괄 제거
             var cleanVal = $(this).val().replace(/[^0-9]/g, '');
-            
-            // 핵심 교정: 숫자가 입력되는 순간 맨 앞자리 '0'이 존재하면 완전히 잘라내고 재조립
             if (cleanVal.length > 1 && cleanVal.startsWith('0')) {
                 cleanVal = cleanVal.replace(/^0+/, '');
                 if(cleanVal === '') cleanVal = '0';
             }
-            
-            $(this).val(cleanVal);
+            if(cleanVal !== '') {
+                $(this).val(Number(cleanVal).toLocaleString('ko-KR'));
+            } else {
+                $(this).val('');
+            }
         }
     });
 });
@@ -399,7 +392,7 @@ var TRIP_CONFIG = {
   effectiveDate: "2025.12.18.",
   outer: {
     ilbiPerDay: 25000,
-    ilbiVehiclePerDay: 12500,
+    ilbiVehiclePerDay: 12500, // 50% 감액 단가
     mealPerDay: 25000,
     lodgingCap: { "서울": 100000, "광역시": 80000, "기타": 70000 }
   },
@@ -410,10 +403,16 @@ var TRIP_CONFIG = {
   }
 };
 
+function getRawNumber(id) {
+    var val = $(id).val();
+    if(!val) return 0;
+    return parseInt(val.replace(/,/g, ''), 10) || 0;
+}
+
 function calcTrip(data, cfg) {
   var c = cfg || TRIP_CONFIG;
-  var lodgingCap = c.outer.lodgingCap;
   var isInner = data.tripType === '내';
+  var isOuterSinae = data.tripType === '외_시내';
 
   var sDt = new Date(data.startDate);
   var eDt = new Date(data.endDate);
@@ -427,12 +426,19 @@ function calcTrip(data, cfg) {
   var transport = data.transPersonal + data.transCorp;
 
   if (isInner) {
+    // 1. 근무지 내 출장 (제16조)
     var base = (data.innerHours === '4plus') ? c.inner.ilbi4hPlus : c.inner.ilbiUnder4h;
     ilbi = base;
     if (data.innerVehicle) ilbi -= c.inner.vehicleDeduct;
     if (ilbi < 0) ilbi = 0;
+  } else if (isOuterSinae) {
+    // 2. 근무지 외 시내출장 (제15조) - 정액 적용
+    ilbi = 10000 * totalDays; 
+    meal = 10000 * totalDays;
   } else {
-    if (data.vehicle === 'company') {
+    // 3. 근무지 외 시외출장 (제14조)
+    // [수정] 대중교통(public)을 제외한 업무용차량(company) 및 전용차량(private)은 일비 50% 감액
+    if (data.vehicle === 'company' || data.vehicle === 'private') {
       var vDays = Math.min(totalDays, data.vehicleDays);
       var pubDays = Math.max(0, totalDays - vDays);
       ilbi = (c.outer.ilbiVehiclePerDay * vDays) + (c.outer.ilbiPerDay * pubDays);
@@ -445,10 +451,11 @@ function calcTrip(data, cfg) {
     meal = Math.max(0, mealFull - mealDeduct);
 
     if (data.nights > 0) {
+      // [수정] 제1호인 경우 숙박비 상한액 무제한(실비), 제2호인 경우 지역별 상한선 작동
       if (data.grade === '1') {
         lodging = data.lodgingPerNight * data.nights;
       } else {
-        var cap = lodgingCap[data.region] || 70000;
+        var cap = c.outer.lodgingCap[data.region] || 70000;
         lodging = Math.min(data.lodgingPerNight, cap) * data.nights;
       }
     }
@@ -467,15 +474,23 @@ function toggleTripTypeFields() {
         $('.outer-field').addClass('d-none');
         $('.inner-field').removeClass('d-none');
         $('#vehicleDaysWrapper').hide();
+    } else if (type === '외_시내') {
+        $('.outer-field').removeClass('d-none');
+        $('.inner-field').addClass('d-none');
+        $('#nightsWrapper, #lodgingPerNightWrapper, #lodgingPaymentWrapper, #freeMealsWrapper, #vehicleDaysWrapper').hide();
     } else {
         $('.outer-field').removeClass('d-none');
         $('.inner-field').addClass('d-none');
+        $('#nightsWrapper, #lodgingPerNightWrapper, #lodgingPaymentWrapper, #freeMealsWrapper').show();
         toggleVehicleFields();
     }
 }
 
 function toggleVehicleFields() {
-    if ($('#tripType').val() === '외' && $('#vehicle').val() === 'company') {
+    var tripType = $('#tripType').val();
+    var vehicle = $('#vehicle').val();
+    // 대중교통이 아니고 시외출장인 경우에만 일수 설정 활성화
+    if (tripType === '외_시외' && (vehicle === 'company' || vehicle === 'private')) {
         $('#vehicleDaysWrapper').show();
     } else {
         $('#vehicleDaysWrapper').hide();
@@ -485,7 +500,11 @@ function toggleVehicleFields() {
 function addTrip() {
     var tripType = $('#tripType').val();
     var gradeVal = $('#grade').val();
-    var gradeStr = gradeVal === '1' ? '원장급' : (gradeVal === '2' ? '임원급' : '일반직원');
+    var gradeStr = gradeVal === '1' ? '제1호' : '제2호';
+
+    var typeDisplayStr = '시외출장';
+    if(tripType === '외_시내') typeDisplayStr = '시내출장';
+    if(tripType === '내') typeDisplayStr = '근무지내';
 
     var data = {
         tripType: tripType,
@@ -497,15 +516,15 @@ function addTrip() {
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
         vehicle: $('#vehicle').val(),
-        vehicleDays: parseInt($('#vehicleDays').val(), 10) || 0,
-        nights: parseInt($('#nights').val(), 10) || 0,
+        vehicleDays: getRawNumber('#vehicleDays'),
+        nights: getRawNumber('#nights'),
         region: $('#region').val(),
-        lodgingPerNight: parseInt($('#lodgingPerNight').val(), 10) || 0,
-        freeMeals: parseInt($('#freeMeals').val(), 10) || 0,
+        lodgingPerNight: getRawNumber('#lodgingPerNight'),
+        freeMeals: getRawNumber('#freeMeals'),
         innerHours: $('#innerHours').val(),
         innerVehicle: $('#innerVehicle').prop('checked'),
-        transPersonal: parseInt($('#transPersonal').val(), 10) || 0,
-        transCorp: parseInt($('#transCorp').val(), 10) || 0,
+        transPersonal: getRawNumber('#transPersonal'),
+        transCorp: getRawNumber('#transCorp'),
         lodgingPayment: $('#lodgingPayment').val()
     };
 
@@ -518,16 +537,17 @@ function addTrip() {
     
     var item = {
         id: Date.now(),
+        typeDisplayStr: typeDisplayStr,
         raw: data,
         calc: res,
         personal: {
             ilbi: res.ilbi,
             meal: res.meal,
-            lodging: (data.lodgingPayment === '개인카드') ? res.lodging : 0,
+            lodging: (data.lodgingPayment === '개인카드' && tripType === '외_시외') ? res.lodging : 0,
             trans: data.transPersonal
         },
         corp: {
-            lodging: (data.lodgingPayment === '법인카드') ? res.lodging : 0,
+            lodging: (data.lodgingPayment === '법인카드' && tripType === '외_시외') ? res.lodging : 0,
             trans: data.transCorp
         }
     };
@@ -535,17 +555,11 @@ function addTrip() {
     tripList.push(item);
     renderTable();
     
+    // 입력 리셋
     $('#name').val('');
     $('#purpose').val('');
     $('#dest').val('');
-    
-    $('#transPersonal').val(0);
-    $('#transCorp').val(0);
-    $('#lodgingPerNight').val(0);
-    $('#vehicleDays').val(0);
-    $('#nights').val(0);
-    $('#freeMeals').val(0);
-    
+    $('.number-only-field').val('0');
     $('#startDate').datepicker('update', '');
     $('#endDate').datepicker('update', '').datepicker('setStartDate', false);
 }
@@ -571,7 +585,6 @@ function renderTable() {
     tripList.forEach(function(t) {
         var dateDisplay = t.raw.startDate + '<br>~ ' + t.raw.endDate;
         var periodStr = t.raw.tripType === '내' ? (t.raw.innerHours === '4plus' ? '4H이상' : '4H미만') : (t.calc.totalDays + '일' + t.raw.nights + '박');
-        var typeStr = t.raw.tripType === '내' ? '근무지내' : '근무지외';
         
         sums.pIlbi += t.personal.ilbi;
         sums.pMeal += t.personal.meal;
@@ -583,7 +596,7 @@ function renderTable() {
 
         var tr = '<tr>' +
             '<td class="no-print"><button class="btn btn-outline-danger btn-sm py-0 px-2" onclick="deleteTrip(' + t.id + ')"><i class="ph ph-trash"></i></button></td>' +
-            '<td>' + typeStr + '</td>' +
+            '<td>' + t.typeDisplayStr + '</td>' +
             '<td>' + t.raw.gradeStr + '</td>' +
             '<td>' + t.raw.name + '</td>' +
             '<td style="font-size:11px; line-height:1.2;">' + dateDisplay + '<br>(' + periodStr + ')</td>' +
@@ -633,13 +646,12 @@ function exportToExcel() {
     
     tripList.forEach(function(t) {
         var periodStr = t.raw.tripType === '내' ? (t.raw.innerHours === '4plus' ? '4H이상' : '4H미만') : (t.calc.totalDays + '일' + t.raw.nights + '박');
-        var typeStr = t.raw.tripType === '내' ? '근무지내' : '근무지외';
         
         sums.pIlbi += t.personal.ilbi; sums.pMeal += t.personal.meal; sums.pLodging += t.personal.lodging;
         sums.pTrans += t.personal.trans; sums.cLogging += t.corp.lodging; sums.cTrans += t.corp.trans; sums.total += t.calc.total;
 
         tbody += '<tr>' +
-            '<td>' + typeStr + '</td><td>' + t.raw.gradeStr + '</td><td>' + t.raw.name + '</td>' +
+            '<td>' + t.typeDisplayStr + '</td><td>' + t.raw.gradeStr + '</td><td>' + t.raw.name + '</td>' +
             '<td>' + t.raw.startDate + ' ~ ' + t.raw.endDate + ' (' + periodStr + ')</td><td>' + t.raw.dest + '</td><td>' + t.raw.purpose + '</td>' +
             '<td class="num">' + t.personal.ilbi + '</td><td class="num">' + t.personal.meal + '</td><td class="num">' + t.personal.lodging + '</td><td class="num">' + t.personal.trans + '</td>' +
             '<td class="num">' + t.corp.lodging + '</td><td class="num">' + t.corp.trans + '</td><td class="num">' + t.calc.total + '</td>' +
