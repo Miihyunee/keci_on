@@ -19,11 +19,23 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
-        /* [핵심] 대화면에서 입력창이 비정상적으로 길어지는 것을 방지 */
+        /* 화면 전체를 넓게 활용 */
         .content { 
-            max-width: 1250px; 
-            margin: 0 auto; 
-            padding: 24px 15px !important;
+            width: 100%;
+            padding: 24px 20px !important;
+        }
+        
+        /* [핵심] 화면은 넓게 쓰되, 개별 입력 컴포넌트의 가로폭이 과도하게 늘어나는 것을 방지 */
+        .card-body .form-control:not(textarea),
+        .card-body .form-select,
+        .card-body .input-group {
+            max-width: 400px;
+        }
+        
+        /* 출장 목적 및 업무 내용 등 넓은 공간이 필요한 입력창은 예외적으로 확장 허용 */
+        .card-body #purpose,
+        .card-body #businessContent {
+            max-width: 850px;
         }
         
         @media print {
@@ -48,28 +60,22 @@
             overflow: hidden;
         }
         
-        /* 섹션 타이틀 강조 */
         .section-title { font-size: 18px !important; font-weight: 700 !important; color: #0f172a !important; }
-        
-        /* 입력 컴포넌트 라벨 크기 최적화 */
         .form-label { font-size: 13.5px; color: #475569; margin-bottom: 6px; }
         .datetime-label { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block; }
         
-        /* 인풋 그룹 및 셀렉트 빡빡하게 조정 */
         .input-group-text { background-color: #f1f5f9; border-color: #cbd5e1; color: #64748b; font-size: 14px; }
         .form-control, .form-select { border-color: #cbd5e1; font-size: 14px; padding: 8px 12px; }
         .form-control:focus, .form-select:focus { border-color: #94a3b8; box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.15); }
         
         .bootstrap-pretty-datepicker { cursor: pointer !important; background-color: #ffffff !important; }
-        
-        /* 시간/분 선택 셀렉트 너비 고정 균형 */
         .time-select-unit { max-width: 45px; background-color: #ffffff !important; border-left: none; font-size: 13px; color: #64748b; }
     </style>
 </head>
 <body>
 
 <div class="page-content">
-    <!-- 좌측 사이드바 -->
+    <!-- 좌측 사이드바 (프로필 영역 삭제 완료) -->
     <div class="sidebar no-print">
         <div class="sidebar-header" style="display: flex !important; align-items: center !important; padding: 0 20px !important; height: 56px !important; background-color: rgba(0, 0, 0, 0.15) !important;">
             <a href="javascript:location.reload();" class="sidebar-brand" style="display: flex !important; align-items: center !important; gap: 10px !important; text-decoration: none !important;">
@@ -77,12 +83,7 @@
                 <span style="color: #ffffff !important; font-size: 16px !important; font-weight: 700 !important;">KECI ON</span>
             </a>
         </div>
-        <div class="user-profile-box">
-            <div class="user-avatar-mock"><i class="ph ph-user"></i></div>
-            <div class="profile-name">박미현</div>
-            <div class="profile-dept">정보안전팀</div>
-        </div>
-        <ul class="nav-sidebar">
+        <ul class="nav-sidebar" style="margin-top: 15px;">
             <li class="nav-item-header">근태</li>
             <li class="nav-item active">
                 <a href="javascript:location.reload();" class="nav-link"><i class="ph ph-note-pencil"></i><span>출장 복명 신청</span></a>
@@ -112,19 +113,18 @@
         <div class="content">
             <form id="tripForm" onsubmit="event.preventDefault(); addTrip();">
                 
-                <!-- [섹션 1] 기본 정보 입력 카드 (컴팩트 그리드 구조) -->
+                <!-- [섹션 1] 기본 정보 입력 카드 -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-user-focus text-primary me-2"></i> 1. 출장자 기본 정보</span>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">
-                            <!-- 인적 사항 및 장소 정보를 한 줄로 압축 배치 -->
-                            <div class="col-md-2 col-sm-6">
+                            <div class="col-md-3 col-sm-6">
                                 <label class="form-label font-weight-semibold">출장자 성명</label>
                                 <input type="text" id="name" class="form-control" placeholder="홍길동" required>
                             </div>
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-md-3 col-sm-6">
                                 <label class="form-label font-weight-semibold">직위 구분</label>
                                 <select id="grade" class="form-select">
                                     <option value="1">제1호 (원장, 임원, 2급이상 보직자)</option>
@@ -140,7 +140,7 @@
                                 <input type="text" id="visitPlace" class="form-control" placeholder="예: 행정안전부" required>
                             </div>
 
-                            <!-- 시작일시와 종료일시를 좌우 2컬럼 구조로 배치하여 가로 컴팩트화 -->
+                            <!-- 시작 및 종료 일시 영역 -->
                             <div class="col-md-6 col-12 mt-3">
                                 <label class="datetime-label">시작일시</label>
                                 <div class="row g-2">
@@ -183,20 +183,19 @@
                                 </div>
                             </div>
 
-                            <!-- 목적 및 세부 내용 가로 밸런스 조정 -->
-                            <div class="col-md-6 mt-3">
+                            <div class="col-12 mt-3">
                                 <label class="form-label font-weight-semibold">출장 목적</label>
                                 <input type="text" id="purpose" class="form-control" placeholder="예: 정기 응용시스템 점검 및 협의" required>
                             </div>
-                            <div class="col-md-6 mt-3">
+                            <div class="col-12 mt-3">
                                 <label class="form-label font-weight-semibold">업무 내용</label>
-                                <textarea id="businessContent" class="form-control" rows="1" style="resize: none;" placeholder="세부 수행 업무 내용을 요약 입력하세요."></textarea>
+                                <textarea id="businessContent" class="form-control" rows="2" style="resize: none;" placeholder="세부 수행 업무 내용을 요약 입력하세요."></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- [섹션 2] 여비 및 정산 조건 설정 카드 (밀도 다단 최적화) -->
+                <!-- [섹션 2] 여비 및 정산 조건 설정 카드 -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-sliders text-success me-2"></i> 2. 여비 및 정산 조건 설정</span>
@@ -277,14 +276,14 @@
                                 <input type="text" id="transCorp" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
                         </div>
-                        <div class="mt-4 text-end">
+                        <div class="mt-4 text-end" style="max-width: 850px;">
                             <button type="submit" class="btn btn-primary px-4 py-2 font-weight-semibold"><i class="ph ph-plus-circle me-1"></i> 명세 목록에 추가</button>
                         </div>
                     </div>
                 </div>
             </form>
 
-            <!-- [결과 테이블 섹션] -->
+            <!-- [결과 테이블 섹션 - 와이드 화면 전체 적용] -->
             <div class="card section-card">
                 <div class="card-header d-flex justify-content-between align-items-center bg-light py-3">
                     <span class="section-title"><i class="ph ph-table text-warning me-2"></i> 여비 정산 명세 목록</span>
@@ -334,7 +333,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.ko.min.js"></script>
 
 <script>
-// 시간(06~23), 분(00~59) 셀렉트 박스 동적 생성 루프
 function populateTimeOptions() {
     var hourOptions = '<option value="" disabled selected>시</option>';
     for (var i = 6; i <= 23; i++) {
@@ -360,7 +358,6 @@ $(document).ready(function() {
         if(this.id === 'startDate') $('#endDate').datepicker('setStartDate', e.date);
     });
 
-    // 금액 필드 천단위 콤마 기능 포매터
     $('.number-only-field').on({
         'focus': function() {
             var rawVal = $(this).val().replace(/,/g, '');
@@ -479,7 +476,6 @@ function addTrip() {
 
     renderTable();
     
-    // 입력 리셋 (연속 작성을 위해 이름 및 직급 세션값 보존)
     $('#dest, #visitPlace, #purpose, #businessContent').val('');
     $('.number-only-field').val('0');
     $('#startDate, #endDate').datepicker('update', '');
