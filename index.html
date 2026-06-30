@@ -17,7 +17,14 @@
     <link href="./assets/css/custom.css" rel="stylesheet" type="text/css">
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        /* [핵심] 대화면에서 입력창이 비정상적으로 길어지는 것을 방지 */
+        .content { 
+            max-width: 1250px; 
+            margin: 0 auto; 
+            padding: 24px 15px !important;
+        }
         
         @media print {
             .sidebar, .main-navbar, .no-print, .card-header, .btn, .alert { display: none !important; }
@@ -36,21 +43,27 @@
             margin-bottom: 20px !important;
             border: 1px solid #e2e8f0 !important;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+            background-color: #ffffff;
+            border-radius: 12px !important;
+            overflow: hidden;
         }
         
-        /* 섹션 타이틀 폰트 크기 확대 및 강조 */
+        /* 섹션 타이틀 강조 */
         .section-title { font-size: 18px !important; font-weight: 700 !important; color: #0f172a !important; }
         
-        /* 입력창 폰트 및 라벨 최적화 */
-        .form-label { font-size: 14px; color: #334155; }
+        /* 입력 컴포넌트 라벨 크기 최적화 */
+        .form-label { font-size: 13.5px; color: #475569; margin-bottom: 6px; }
         .datetime-label { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: block; }
         
-        /* 아이콘이 포함된 Input Group 스타일링 */
-        .input-group-text { background-color: #f8fafc; border-color: #cbd5e1; color: #64748b; }
-        .form-control, .form-select { border-color: #cbd5e1; font-size: 14px; }
-        .form-control:focus, .form-select:focus { border-color: #94a3b8; box-shadow: 0 0 0 0.2rem rgba(148, 163, 184, 0.25); }
+        /* 인풋 그룹 및 셀렉트 빡빡하게 조정 */
+        .input-group-text { background-color: #f1f5f9; border-color: #cbd5e1; color: #64748b; font-size: 14px; }
+        .form-control, .form-select { border-color: #cbd5e1; font-size: 14px; padding: 8px 12px; }
+        .form-control:focus, .form-select:focus { border-color: #94a3b8; box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.15); }
         
         .bootstrap-pretty-datepicker { cursor: pointer !important; background-color: #ffffff !important; }
+        
+        /* 시간/분 선택 셀렉트 너비 고정 균형 */
+        .time-select-unit { max-width: 45px; background-color: #ffffff !important; border-left: none; font-size: 13px; color: #64748b; }
     </style>
 </head>
 <body>
@@ -99,112 +112,98 @@
         <div class="content">
             <form id="tripForm" onsubmit="event.preventDefault(); addTrip();">
                 
-                <!-- [섹션 1] 기본 정보 입력 카드 -->
+                <!-- [섹션 1] 기본 정보 입력 카드 (컴팩트 그리드 구조) -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-user-focus text-primary me-2"></i> 1. 출장자 기본 정보</span>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-4">
-                            <!-- 출장자 정보 -->
-                            <div class="col-md-6">
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <!-- 인적 사항 및 장소 정보를 한 줄로 압축 배치 -->
+                            <div class="col-md-2 col-sm-6">
                                 <label class="form-label font-weight-semibold">출장자 성명</label>
                                 <input type="text" id="name" class="form-control" placeholder="홍길동" required>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4 col-sm-6">
                                 <label class="form-label font-weight-semibold">직위 구분</label>
                                 <select id="grade" class="form-select">
                                     <option value="1">제1호 (원장, 임원, 2급이상 보직자)</option>
                                     <option value="2" selected>제2호 (제1호 외 임직원)</option>
                                 </select>
                             </div>
-
-                            <hr class="my-2 border-light">
-
-                            <!-- 출장 기간 헤더 -->
-                            <div class="col-12 mt-2 mb-0">
-                                <span class="font-weight-bold" style="font-size: 16px; color: #1e293b;">출장 기간</span>
+                            <div class="col-md-3 col-sm-6">
+                                <label class="form-label font-weight-semibold">출장지</label>
+                                <input type="text" id="dest" class="form-control" placeholder="예: 대전, 세종" required>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <label class="form-label font-weight-semibold">방문처</label>
+                                <input type="text" id="visitPlace" class="form-control" placeholder="예: 행정안전부" required>
                             </div>
 
-                            <!-- 시작일시 -->
-                            <div class="col-12 mt-2">
+                            <!-- 시작일시와 종료일시를 좌우 2컬럼 구조로 배치하여 가로 컴팩트화 -->
+                            <div class="col-md-6 col-12 mt-3">
                                 <label class="datetime-label">시작일시</label>
                                 <div class="row g-2">
-                                    <div class="col-md-6">
+                                    <div class="col-7">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="ph ph-calendar-blank"></i></span>
                                             <input type="text" id="startDate" class="form-control bootstrap-pretty-datepicker" placeholder="년-월-일" autocomplete="off" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-5">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="ph ph-clock"></i></span>
                                             <select id="startHour" class="form-select text-center" required></select>
-                                            <span class="input-group-text bg-white">시</span>
+                                            <span class="input-group-text time-select-unit px-2">시</span>
                                             <select id="startMin" class="form-select text-center" required></select>
-                                            <span class="input-group-text bg-white">분</span>
+                                            <span class="input-group-text time-select-unit px-2">분</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 종료일시 -->
-                            <div class="col-12 mt-3">
+                            <div class="col-md-6 col-12 mt-3">
                                 <label class="datetime-label">종료일시</label>
                                 <div class="row g-2">
-                                    <div class="col-md-6">
+                                    <div class="col-7">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="ph ph-calendar-blank"></i></span>
                                             <input type="text" id="endDate" class="form-control bootstrap-pretty-datepicker" placeholder="년-월-일" autocomplete="off" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-5">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="ph ph-clock"></i></span>
                                             <select id="endHour" class="form-select text-center" required></select>
-                                            <span class="input-group-text bg-white">시</span>
+                                            <span class="input-group-text time-select-unit px-2">시</span>
                                             <select id="endMin" class="form-select text-center" required></select>
-                                            <span class="input-group-text bg-white">분</span>
+                                            <span class="input-group-text time-select-unit px-2">분</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr class="my-3 border-light">
-
-                            <!-- 출장지 및 방문처 -->
-                            <div class="col-md-6 mt-2">
-                                <label class="form-label font-weight-semibold">출장지</label>
-                                <input type="text" id="dest" class="form-control" placeholder="예: 서울, 대전" required>
-                            </div>
-                            <div class="col-md-6 mt-2">
-                                <label class="form-label font-weight-semibold">방문처</label>
-                                <input type="text" id="visitPlace" class="form-control" placeholder="예: 행정안전부, 한국정보화진흥원" required>
-                            </div>
-
-                            <!-- 출장 목적 -->
-                            <div class="col-12 mt-3">
+                            <!-- 목적 및 세부 내용 가로 밸런스 조정 -->
+                            <div class="col-md-6 mt-3">
                                 <label class="form-label font-weight-semibold">출장 목적</label>
-                                <input type="text" id="purpose" class="form-control" placeholder="정기 회의 및 업무 협의" required>
+                                <input type="text" id="purpose" class="form-control" placeholder="예: 정기 응용시스템 점검 및 협의" required>
                             </div>
-
-                            <!-- 업무 내용 -->
-                            <div class="col-12 mt-3">
+                            <div class="col-md-6 mt-3">
                                 <label class="form-label font-weight-semibold">업무 내용</label>
-                                <textarea id="businessContent" class="form-control" rows="3" placeholder="구체적인 수행 업무 내용을 기재해 주세요."></textarea>
+                                <textarea id="businessContent" class="form-control" rows="1" style="resize: none;" placeholder="세부 수행 업무 내용을 요약 입력하세요."></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- [섹션 2] 여비 및 정산 조건 설정 카드 -->
+                <!-- [섹션 2] 여비 및 정산 조건 설정 카드 (밀도 다단 최적화) -->
                 <div class="card section-card no-print">
                     <div class="card-header bg-light py-3">
                         <span class="section-title"><i class="ph ph-sliders text-success me-2"></i> 2. 여비 및 정산 조건 설정</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4 col-sm-6">
                                 <label class="form-label font-weight-semibold">출장 구분</label>
                                 <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
                                     <option value="외_시외" selected>근무지 외 시외출장 (제14조)</option>
@@ -212,7 +211,7 @@
                                     <option value="내">근무지 내 출장 (제16조)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-4 col-sm-6 outer-field">
                                 <label class="form-label font-weight-semibold">지역 분류</label>
                                 <select id="region" class="form-select">
                                     <option value="서울">서울 특별시 (100,000원)</option>
@@ -220,36 +219,37 @@
                                     <option value="기타" selected>기타 시·군 지역 (70,000원)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 outer-field">
+                            <div class="col-md-4 col-sm-6 outer-field">
                                 <label class="form-label font-weight-semibold">교통수단 (일비 적용)</label>
                                 <select id="vehicle" class="form-select" onchange="toggleVehicleFields()">
                                     <option value="public">대중교통 (일비 100%)</option>
-                                    <option value="company">업무용 차량 / 자가용 (일비 50% 감액)</option>
-                                    <option value="private">전용 차량 (일비 50% 감액)</option>
+                                    <option value="company">업무용 차량 / 자가용 (50% 감액)</option>
+                                    <option value="private">전용 차량 (50% 감액)</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 outer-field" id="vehicleDaysWrapper" style="display:none;">
+                            
+                            <div class="col-md-3 col-sm-6 outer-field" id="vehicleDaysWrapper" style="display:none;">
                                 <label class="form-label font-weight-semibold">감액 대상 차량 이용 일수</label>
-                                <input type="text" id="vehicleDays" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="vehicleDays" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field" id="nightsWrapper">
+                            <div class="col-md-3 col-sm-6 outer-field" id="nightsWrapper">
                                 <label class="form-label font-weight-semibold">숙박 박수</label>
-                                <input type="text" id="nights" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="nights" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field" id="lodgingPerNightWrapper">
+                            <div class="col-md-3 col-sm-6 outer-field" id="lodgingPerNightWrapper">
                                 <label class="form-label font-weight-semibold">1박당 실제 숙박비</label>
-                                <input type="text" id="lodgingPerNight" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="lodgingPerNight" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-3 outer-field" id="lodgingPaymentWrapper">
+                            <div class="col-md-3 col-sm-6 outer-field" id="lodgingPaymentWrapper">
                                 <label class="form-label font-weight-semibold">숙박비 결제 구분</label>
                                 <select id="lodgingPayment" class="form-select">
                                     <option value="개인카드">개인카드 / 현금 지출</option>
                                     <option value="법인카드">법인카드 지출</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 outer-field" id="freeMealsWrapper">
+                            <div class="col-md-3 col-sm-6 outer-field" id="freeMealsWrapper">
                                 <label class="form-label font-weight-semibold">제공받은 식사 횟수</label>
-                                <input type="text" id="freeMeals" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="freeMeals" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
 
                             <div class="col-md-4 inner-field d-none">
@@ -262,23 +262,23 @@
                             <div class="col-md-5 inner-field d-none">
                                 <label class="form-label font-weight-semibold">차량 운행 여부</label>
                                 <div class="pt-2">
-                                    <label class="form-check-label">
-                                        <input type="checkbox" id="innerVehicle" class="form-check-input"> 기관 차량 또는 자차 운행 시 체크 (-10,000원 차감)
+                                    <label class="form-check-label text-muted" style="font-size: 13.5px;">
+                                        <input type="checkbox" id="innerVehicle" class="form-check-input"> 기관 차량·자차 운행 (-10,000원 차감)
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-sm-6">
                                 <label class="form-label font-weight-semibold">실비 교통비 (개인카드)</label>
-                                <input type="text" id="transPersonal" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="transPersonal" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-sm-6">
                                 <label class="form-label font-weight-semibold">실비 교통비 (법인카드)</label>
-                                <input type="text" id="transCorp" class="form-control number-only-field" value="0" inputmode="numeric">
+                                <input type="text" id="transCorp" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
                         </div>
                         <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-primary px-4 py-2"><i class="ph ph-plus-circle me-1"></i> 명세 목록에 추가</button>
+                            <button type="submit" class="btn btn-primary px-4 py-2 font-weight-semibold"><i class="ph ph-plus-circle me-1"></i> 명세 목록에 추가</button>
                         </div>
                     </div>
                 </div>
@@ -334,16 +334,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.ko.min.js"></script>
 
 <script>
-// 시간/분 옵션 자동 생성 스크립트
+// 시간(06~23), 분(00~59) 셀렉트 박스 동적 생성 루프
 function populateTimeOptions() {
-    var hourOptions = '<option value="" disabled selected>선택</option>';
+    var hourOptions = '<option value="" disabled selected>시</option>';
     for (var i = 6; i <= 23; i++) {
         var h = (i < 10 ? '0' : '') + i;
         hourOptions += '<option value="' + h + '">' + h + '</option>';
     }
     $('#startHour, #endHour').html(hourOptions);
 
-    var minOptions = '<option value="" disabled selected>선택</option>';
+    var minOptions = '<option value="" disabled selected>분</option>';
     for (var m = 0; m <= 59; m++) {
         var mn = (m < 10 ? '0' : '') + m;
         minOptions += '<option value="' + mn + '">' + mn + '</option>';
@@ -352,7 +352,7 @@ function populateTimeOptions() {
 }
 
 $(document).ready(function() {
-    populateTimeOptions(); // 셀렉트 박스 시간 생성 실행
+    populateTimeOptions();
 
     $('.bootstrap-pretty-datepicker').datepicker({
         format: "yyyy-mm-dd", autoclose: true, todayHighlight: true, language: "ko", orientation: "bottom auto"
@@ -360,7 +360,7 @@ $(document).ready(function() {
         if(this.id === 'startDate') $('#endDate').datepicker('setStartDate', e.date);
     });
 
-    // 금액 필드 콤마 처리
+    // 금액 필드 천단위 콤마 기능 포매터
     $('.number-only-field').on({
         'focus': function() {
             var rawVal = $(this).val().replace(/,/g, '');
@@ -450,7 +450,6 @@ function toggleVehicleFields() {
 
 function addTrip() {
     var tripType = $('#tripType').val();
-    
     var sHour = $('#startHour').val(); var sMin = $('#startMin').val();
     var eHour = $('#endHour').val(); var eMin = $('#endMin').val();
     
@@ -480,7 +479,7 @@ function addTrip() {
 
     renderTable();
     
-    // 폼 입력 리셋 (이름, 직급 유지)
+    // 입력 리셋 (연속 작성을 위해 이름 및 직급 세션값 보존)
     $('#dest, #visitPlace, #purpose, #businessContent').val('');
     $('.number-only-field').val('0');
     $('#startDate, #endDate').datepicker('update', '');
