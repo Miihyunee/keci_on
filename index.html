@@ -344,14 +344,14 @@
 
 <script>
 function populateTimeOptions() {
-    var hourOptions = '<option value="" disabled selected>시</option>';
+    var hourOptions = '<option value="" disabled selected></option>';
     for (var i = 6; i <= 23; i++) {
         var h = (i < 10 ? '0' : '') + i;
         hourOptions += '<option value="' + h + '">' + h + '</option>';
     }
     $('#startHour, #endHour').html(hourOptions);
 
-    var minOptions = '<option value="" disabled selected>분</option>';
+    var minOptions = '<option value="" disabled selected></option>';
     for (var m = 0; m <= 59; m++) {
         var mn = (m < 10 ? '0' : '') + m;
         minOptions += '<option value="' + mn + '">' + mn + '</option>';
