@@ -25,17 +25,22 @@
             padding: 24px 20px !important;
         }
         
-        /* [핵심] 화면은 넓게 쓰되, 개별 입력 컴포넌트의 가로폭이 과도하게 늘어나는 것을 방지 */
-        .card-body .form-control:not(textarea),
-        .card-body .form-select,
-        .card-body .input-group {
-            max-width: 400px;
+        /* [핵심] 화면은 넓게 쓰되, 개별 입력 컴포넌트의 가로폭이 과도하게 늘어나는 것을 방지
+           단, 모바일(768px 미만)에서는 그리드 컬럼 너비를 그대로 따르도록 max-width 제한을 풀어줌 */
+        @media (min-width: 768px) {
+            .card-body .form-control:not(textarea),
+            .card-body .form-select,
+            .card-body .input-group {
+                max-width: 400px;
+            }
         }
         
         /* 출장 목적 및 업무 내용 등 넓은 공간이 필요한 입력창은 예외적으로 확장 허용 */
-        .card-body #purpose,
-        .card-body #businessContent {
-            max-width: 850px;
+        @media (min-width: 768px) {
+            .card-body #purpose,
+            .card-body #businessContent {
+                max-width: 850px;
+            }
         }
         
         @media print {
@@ -70,6 +75,11 @@
         
         .bootstrap-pretty-datepicker { cursor: pointer !important; background-color: #ffffff !important; }
         .time-select-unit { max-width: 45px; background-color: #ffffff !important; border-left: none; font-size: 13px; color: #64748b; }
+
+        /* 시간 select가 좁은 화면에서 찌그러지지 않도록 최소 너비 지정 */
+        #startHour, #startMin, #endHour, #endMin {
+            min-width: 60px;
+        }
     </style>
 </head>
 <body>
@@ -93,8 +103,8 @@
 
     <!-- 메인 콘텐츠 -->
     <div class="content-wrapper">
-        <!-- 상단 바 -->
-        <div class="main-navbar no-print" style="min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; padding: 12px 24px !important;">
+        <!-- 상단 바 (로고 + 타이틀: 왼쪽 정렬) -->
+        <div class="main-navbar no-print" style="min-height: 64px !important; background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; padding: 12px 24px !important;">
             <div class="calculator-header-box" style="display: flex !important; align-items: center !important; gap: 14px !important;">
                 <img src="./assets/images/logo.png" alt="로고" style="height: 32px !important; width: auto !important;">
                 <div style="width: 1px !important; height: 32px !important; background-color: #cbd5e1 !important;"></div>
@@ -140,19 +150,19 @@
                                 <input type="text" id="visitPlace" class="form-control" placeholder="예: 행정안전부" required>
                             </div>
 
-                            <!-- 시작 및 종료 일시 영역 -->
-                            <div class="col-md-6 col-12 mt-3">
+                            <!-- 시작 및 종료 일시 영역 (좁은 화면에서는 날짜/시간 세로 배치) -->
+                            <div class="col-lg-6 col-12 mt-3">
                                 <label class="datetime-label">시작일시</label>
                                 <div class="row g-2">
-                                    <div class="col-7">
+                                    <div class="col-12 col-sm-7">
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="ph ph-calendar-blank"></i></span>
+                                            <span class="input-group-text">📅</span>
                                             <input type="text" id="startDate" class="form-control bootstrap-pretty-datepicker" placeholder="년-월-일" autocomplete="off" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-5">
+                                    <div class="col-12 col-sm-5">
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="ph ph-clock"></i></span>
+                                            <span class="input-group-text">⏰</span>
                                             <select id="startHour" class="form-select text-center" required></select>
                                             <span class="input-group-text time-select-unit px-2">시</span>
                                             <select id="startMin" class="form-select text-center" required></select>
@@ -162,18 +172,18 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 col-12 mt-3">
+                            <div class="col-lg-6 col-12 mt-3">
                                 <label class="datetime-label">종료일시</label>
                                 <div class="row g-2">
-                                    <div class="col-7">
+                                    <div class="col-12 col-sm-7">
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="ph ph-calendar-blank"></i></span>
+                                            <span class="input-group-text">📅</span>
                                             <input type="text" id="endDate" class="form-control bootstrap-pretty-datepicker" placeholder="년-월-일" autocomplete="off" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-5">
+                                    <div class="col-12 col-sm-5">
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="ph ph-clock"></i></span>
+                                            <span class="input-group-text">⏰</span>
                                             <select id="endHour" class="form-select text-center" required></select>
                                             <span class="input-group-text time-select-unit px-2">시</span>
                                             <select id="endMin" class="form-select text-center" required></select>
