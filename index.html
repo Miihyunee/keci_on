@@ -221,35 +221,34 @@
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 outer-field">
-
-    <label class="form-label font-weight-semibold">
-        출장지역
-    </label>
-
-    <select id="region" class="form-select">
-
-        <option value="서울특별시">서울특별시</option>
-        <option value="부산광역시">부산광역시</option>
-        <option value="대구광역시">대구광역시</option>
-        <option value="인천광역시">인천광역시</option>
-        <option value="광주광역시">광주광역시</option>
-        <option value="대전광역시">대전광역시</option>
-        <option value="울산광역시">울산광역시</option>
-        <option value="세종특별자치시">세종특별자치시</option>
-
-        <option value="경기도">경기도</option>
-        <option value="강원특별자치도">강원특별자치도</option>
-        <option value="충청북도">충청북도</option>
-        <option value="충청남도">충청남도</option>
-        <option value="전북특별자치도">전북특별자치도</option>
-        <option value="전라남도">전라남도</option>
-        <option value="경상북도">경상북도</option>
-        <option value="경상남도">경상남도</option>
-        <option value="제주특별자치도">제주특별자치도</option>
-
-    </select>
-
-</div>
+                                <label class="form-label font-weight-semibold">
+                                    출장지역
+                                </label>
+                            
+                                <select id="region" class="form-select">
+                            
+                                    <option value="서울특별시">서울특별시</option>
+                                    <option value="부산광역시">부산광역시</option>
+                                    <option value="대구광역시">대구광역시</option>
+                                    <option value="인천광역시">인천광역시</option>
+                                    <option value="광주광역시">광주광역시</option>
+                                    <option value="대전광역시">대전광역시</option>
+                                    <option value="울산광역시">울산광역시</option>
+                                    <option value="세종특별자치시">세종특별자치시</option>
+                            
+                                    <option value="경기도">경기도</option>
+                                    <option value="강원특별자치도">강원특별자치도</option>
+                                    <option value="충청북도">충청북도</option>
+                                    <option value="충청남도">충청남도</option>
+                                    <option value="전북특별자치도">전북특별자치도</option>
+                                    <option value="전라남도">전라남도</option>
+                                    <option value="경상북도">경상북도</option>
+                                    <option value="경상남도">경상남도</option>
+                                    <option value="제주특별자치도">제주특별자치도</option>
+                            
+                                </select>
+                            
+                            </div>
                             <div class="col-md-4 col-sm-6 outer-field">
                                 <label class="form-label font-weight-semibold">교통수단 (일비 적용)</label>
                                 <select id="vehicle" class="form-select" onchange="toggleVehicleFields()">
@@ -267,71 +266,58 @@
                                 <label class="form-label font-weight-semibold">숙박 박수</label>
                                 <input type="text" id="nights" class="form-control number-only-field text-end" value="0" inputmode="numeric">
                             </div>
-                            <label class="form-label font-weight-semibold d-flex align-items-center">
-
-    1박당 실제 숙박비
-
-    <i
-        class="fas fa-circle-info text-primary ms-2"
-        style="cursor:pointer;font-size:15px;"
-        data-bs-toggle="popover"
-        data-bs-trigger="hover focus"
-        data-bs-placement="right"
-        data-bs-html="true"
-
-        data-bs-content="
-
-<table class='table table-bordered table-sm mb-0 text-center'>
-
-<thead class='table-light'>
-
-<tr>
-
-<th>직위</th>
-
-<th>숙박비(1박당)</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td>1호</td>
-
-<td>실비</td>
-
-</tr>
-
-<tr>
-
-<td>2호</td>
-
-<td style='text-align:left'>
-
-아래 상한액 이하의 실비<br><br>
-
-서울특별시 : <b>100,000원</b><br>
-
-광역시 : <b>80,000원</b><br>
-
-그 밖의 지역 : <b>70,000원</b>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-">
-
-    </i>
-
-</label>
+                            <label class="form-label font-weight-semibold d-flex align-items-center">1박당 실제 숙박비
+                                <i
+                                    class="fas fa-circle-info text-primary ms-2"
+                                    style="cursor:pointer;font-size:15px;"
+                                    data-bs-toggle="popover"
+                                    data-bs-trigger="hover focus"
+                                    data-bs-placement="right"
+                                    data-bs-html="true"
+                            
+                                    data-bs-content="
+                            
+                            <table class='table table-bordered table-sm mb-0 text-center'>
+                            <thead class='table-light'>
+                            <tr>
+                                <th>직위</th>
+                                <th>숙박비(1박당)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            
+                            <tr>
+                            <td>1호</td>
+                            <td>실비</td>
+                            </tr>
+                            
+                            <tr>
+                            
+                            <td>2호</td>
+                            
+                            <td style='text-align:left'>
+                            
+                            아래 상한액 이하의 실비<br><br>
+                            
+                            서울특별시 : <b>100,000원</b><br>
+                            
+                            광역시 : <b>80,000원</b><br>
+                            
+                            그 밖의 지역 : <b>70,000원</b>
+                            
+                            </td>
+                            
+                            </tr>
+                            
+                            </tbody>
+                            
+                            </table>
+                            
+                            ">
+                            
+                                </i>
+                            
+                            </label>
                             <div class="col-md-3 col-sm-6 outer-field" id="lodgingPaymentWrapper">
                                 <label class="form-label font-weight-semibold">숙박비 결제 구분</label>
                                 <select id="lodgingPayment" class="form-select">
