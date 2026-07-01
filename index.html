@@ -208,12 +208,20 @@
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-3">
-                            <div class="col-md-4 col-sm-6">
+                            <!-- <div class="col-md-4 col-sm-6">
                                 <label class="form-label font-weight-semibold">출장 구분</label>
                                 <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
                                     <option value="외_시외" selected>근무지 외 시외출장 (제14조)</option>
                                     <option value="외_시내">근무지 외 시내출장 (제15조)</option>
                                     <option value="내">근무지 내 출장 (제16조)</option>
+                                </select>
+                            </div> -->
+                            <div class="col-md-4 col-sm-6">
+                                <label class="form-label font-weight-semibold">출장 구분</label>
+                                <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
+                                    <option value="inner_under4">근무지 내 출장 - 4시간 이내</option>
+                                    <option value="inner_over4">근무지 내 출장 - 4시간 이상</option>
+                                    <option value="outer" selected>근무지 외 출장</option>
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 outer-field">
@@ -324,15 +332,6 @@
                             <div class="col-md-3 col-sm-6 outer-field" id="freeMealsWrapper">
                                 <label class="form-label font-weight-semibold">제공받은 식사 횟수</label>
                                 <input type="text" id="freeMeals" class="form-control number-only-field text-end" value="0" inputmode="numeric">
-                            </div>
-
-                            <div class="col-md-4 col-sm-6">
-                                <label class="form-label font-weight-semibold">출장 구분</label>
-                                <select id="tripType" class="form-select" onchange="toggleTripTypeFields()">
-                                    <option value="inner_under4">근무지 내 출장 - 4시간 이내</option>
-                                    <option value="inner_over4">근무지 내 출장 - 4시간 이상</option>
-                                    <option value="outer" selected>근무지 외 출장</option>
-                                </select>
                             </div>
                             <div class="col-md-5 inner-field d-none">
                                 <label class="form-label font-weight-semibold">차량 운행 여부</label>
