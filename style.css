@@ -741,3 +741,22 @@ body {
     .regulation-note strong { color: #000; }
     @page { size: A4 landscape; margin: 10mm; }
 }
+/* 1. 모든 숫자형 입력창에서 우측 업앤다운(스핀) 버튼을 완전히 제거 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield; /* 파이어폭스 대응 */
+}
+
+/* 4. 숙박비 상한 기준 안내 툴팁 디자인 정의 */
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+.tooltip-container:hover .tooltip-box {
+    display: block !important;
+}
