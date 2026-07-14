@@ -337,3 +337,31 @@ function addRoster() {
     
     tbody.appendChild(row);
 }
+/**
+ * 명부 테이블 영역(.roster-container)을 PDF 파일로 변환합니다.
+ */
+function generatePDF() {
+    const element = document.querySelector('.roster-container');
+    if (!element) {
+        console.error("PDF로 변환할 대상을 찾을 수 없습니다.");
+        return;
+    }
+
+    // PDF 출력 시 불필요한 요소(관리 버튼 등) 임시 숨김 처리
+    const noPrintElements = element.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => el.style.display = 'none');
+
+    // PDF 변환 옵션 설정
+    const opt = {
+        margin:       10,
+        filename:     '출장자_여비지급명부.pdf',
+        image:        { type: 'jpeg', quality: 1.0 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // 표 특성상 가로(landscape) 방향 권장
+    };
+
+    // 비동기 PDF 생성 후 숨겼던 요소 복구
+    html2pdf().set(opt).from(element).save().then(() => {
+        noPrintElements.forEach(el => el.style.display = '');
+    });
+}
