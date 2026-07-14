@@ -3,7 +3,13 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 초기 실행 및 유효성 체크 바인딩
+    // [중요] .hideable 클래스가 붙은 모든 요소(권역, 숙박비, 식사제공 등)를 강제로 표시
+    const hideableElements = document.querySelectorAll('.hideable');
+    hideableElements.forEach(el => {
+        el.style.display = 'block'; 
+    });
+
+    // 기존 유효성 체크 및 바인딩
     onDateChange();
     onVehicleChange();
     onTripTypeChange();
