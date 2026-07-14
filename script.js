@@ -50,10 +50,13 @@ function updatePreview() {
     const startVal = document.getElementById('dateStart').value;
     const endVal = document.getElementById('dateEnd').value;
 
+    // 0. 날짜 표시 형식 수정 (YYYY.MM.DD 로 고정)
     if (startVal && endVal) {
-        const formattedStart = startVal.replace(/-/g, '/');
-        const formattedEnd = endVal.replace(/-/g, '/');
-        const periodText = `${formattedStart} ~ ${formattedEnd}`;
+        const formatDate = (dateStr) => {
+            const [y, m, d] = dateStr.split('-');
+            return `${y}.${m}.${d}`;
+        };
+        const periodText = `${formatDate(startVal)} ~ ${formatDate(endVal)}`;
         
         const previewEl = document.getElementById('periodPreview');
         if (previewEl) previewEl.innerText = periodText;
@@ -170,13 +173,15 @@ function onTripTypeChange() {
     const regionField = document.getElementById('regionField');
     const tripTypeHelp = document.getElementById('tripTypeHelp');
 
-    // 1. [도착 권역 지자체] 필드 표시 제어
-    // 오류가 났던 style.style.display를 style.display로 수정했습니다.
+    // 1. 레이아웃 줄맞춤 유지 및 필드 제어
+    // display: none을 쓰면 Grid 줄이 깨지므로, visibility로 공간을 유지합니다.
     if (regionField) {
         if (tripType === '외') {
-            regionField.style.display = 'block'; 
+            regionField.style.visibility = 'visible'; // 보이게 설정
+            regionField.style.display = '';           // 기존 CSS 설정(grid)을 따름
         } else {
-            regionField.style.display = 'none';  
+            regionField.style.visibility = 'hidden';  // 공간은 유지하고 내용만 숨김
+            regionField.style.display = 'block';      // block으로 설정하여 공간 점유 유지
         }
     }
 
@@ -184,8 +189,8 @@ function onTripTypeChange() {
     if (tripTypeHelp) {
         tripTypeHelp.textContent = (tripType === '외') ? '타 시·군 등으로의 출장 복명' : '근무지 인근 출장 복명';
     }
-    
-    // 3. 중요한 부분: 권역이 바뀌면 계산도 당연히 바뀌어야 하므로 기존의 updatePreview를 여기서 호출합니다.
+
+    // 3. 연산 업데이트 (선생님의 updatePreview 함수 호출)
     updatePreview();
 }
 
