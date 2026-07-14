@@ -427,13 +427,14 @@ input[type="number"] {
         table-layout: fixed !important;
     }
 }
-/* 기존 .hideable 스타일 수정 */
+/* 숨겨진 필드 강제 표시 (기존의 display: none을 덮어씁니다) */
 .hideable {
-    /* display: none 대신 아래 속성 사용 */
-    visibility: hidden; 
+    display: block !important;
 }
 
-/* 요소가 나타날 때 다시 보이게 처리 */
-.hideable.show {
-    visibility: visible;
+/* 날짜 입력칸 브라우저 기본 형식 이슈 보완 */
+input[type="date"] {
+    display: block;
+    width: 100%;
+    min-height: 40px;
 }
