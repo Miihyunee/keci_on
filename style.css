@@ -427,3 +427,13 @@ input[type="number"] {
         table-layout: fixed !important;
     }
 }
+/* 기존 .hideable 스타일 수정 */
+.hideable {
+    /* display: none 대신 아래 속성 사용 */
+    visibility: hidden; 
+}
+
+/* 요소가 나타날 때 다시 보이게 처리 */
+.hideable.show {
+    visibility: visible;
+}
