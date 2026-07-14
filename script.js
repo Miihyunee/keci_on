@@ -41,25 +41,30 @@ function onDateChange() {
     if (typeof updatePreview === 'function') updatePreview();
 }
 
-// [1번 문제 해결] 샘플 데이터 로딩 함수 수정 예시
-// (기존 파일 내 샘플 데이터 주입 단락을 찾아 아래 형태로 필드명을 매핑해 주세요)
 function loadSampleData() {
-    // ... 기타 성명, 출장지 등 기존 샘플 코드 유지 ...
-    
+    // 1. 날짜 데이터 입력 (2박 3일 예시)
     const startInput = document.getElementById('dateStart');
     const endInput = document.getElementById('dateEnd');
-    if(startInput && endInput) {
-        startInput.value = "2026-07-14";
-        endInput.value = "2026-07-16"; // 2박 3일 예시
+    if (startInput) startInput.value = "2026-07-14";
+    if (endInput) endInput.value = "2026-07-16";
+
+    // 2. 숙박일수 및 금액 데이터 주입 (논리적 보완)
+    const lpNights = document.getElementById('lodgingPersonalNights');
+    const lpAmount = document.getElementById('lodgingPersonalAmount');
+    const lcNights = document.getElementById('lodgingCorpNights');
+    const lcAmount = document.getElementById('lodgingCorpAmount');
+
+    if (lpNights) lpNights.value = "2";
+    if (lpAmount) lpAmount.value = "160000";
+    if (lcNights) lcNights.value = "0";
+    if (lcAmount) lcAmount.value = "0";
+
+    // 3. 변경사항 반영 및 데이터 검증 함수 호출
+    if (typeof onDateChange === 'function') {
+        onDateChange();
+    } else if (typeof updatePreview === 'function') {
+        updatePreview();
     }
-
-    // 숙박일수와 금액을 논리에 맞게 동시 주입
-    if(document.getElementById('lodgingPersonalNights')) document.getElementById('lodgingPersonalNights').value = "2";
-    if(document.getElementById('lodgingPersonalAmount')) document.getElementById('lodgingPersonalAmount').value = "160000"; 
-    if(document.getElementById('lodgingCorpNights')) document.getElementById('lodgingCorpNights').value = "0";
-    if(document.getElementById('lodgingCorpAmount')) document.getElementById('lodgingCorpAmount').value = "0";
-
-    if (typeof onDateChange === 'function') onDateChange();
 }
 
 /**
@@ -334,18 +339,17 @@ function addRoster() {
     const destination = getVal('destination');
     const dateStart = getVal('dateStart');
     const dateEnd = getVal('dateEnd');
-
-    // 하이픈(-)을 슬래시(/)로 변경하여 yyyy/mm/dd 형태로 통일
-    const formattedStart = dateStart.replace(/-/g, '/');
-    const formattedEnd = dateEnd.replace(/-/g, '/');
-    const period = `${formattedStart} ~ ${formattedEnd}`;
     
+    // 유효성 검증을 날짜 변환 및 중복 선언 전에 수행하여 팝업이 정상 작동하도록 구성
     if (!name || !destination || !dateStart || !dateEnd) {
         alert("⚠️ 필수 항목 입력 누락\n출장자 성명, 출장지, 출장 시작일 및 종료일을 모두 명확히 입력하셔야 명부 등록이 가능합니다.");
         return; 
     }
 
-    const period = `${dateStart} ~ ${dateEnd}`;
+    // [5번 기능 반영] 하이픈(-)을 슬래시(/)로 변경하여 yyyy/mm/dd 형태로 통일
+    const formattedStart = dateStart.replace(/-/g, '/');
+    const formattedEnd = dateEnd.replace(/-/g, '/');
+    const period = `${formattedStart} ~ ${formattedEnd}`;
 
     // 2. 대시보드 카드 연동 데이터 매칭
     const cardValues = document.querySelectorAll('.cost-card-value');
@@ -369,6 +373,8 @@ function addRoster() {
 
     // 5. 표에 바인딩
     const tbody = document.getElementById('rosterTbody');
+    if (!tbody) return alert("명부 테이블(rosterTbody)을 찾을 수 없습니다.");
+    
     const row = document.createElement('tr');
     
     const tdStyle = "padding: 6px 4px; border: 1px solid #cbd5e1; text-align: right; width: 75px; white-space: nowrap;";
