@@ -50,14 +50,13 @@ function updatePreview() {
     const startVal = document.getElementById('dateStart').value;
     const endVal = document.getElementById('dateEnd').value;
 
-    // 0. 날짜 표시 형식 수정 (YYYY.MM.DD 로 고정)
+    // 1. 날짜 표시
     if (startVal && endVal) {
         const formatDate = (dateStr) => {
             const [y, m, d] = dateStr.split('-');
             return `${y}.${m}.${d}`;
         };
         const periodText = `${formatDate(startVal)} ~ ${formatDate(endVal)}`;
-        
         const previewEl = document.getElementById('periodPreview');
         if (previewEl) previewEl.innerText = periodText;
     } else {
@@ -71,7 +70,7 @@ function updatePreview() {
     const previewContainer = document.getElementById('costDashboardContainer');
     if (!previewContainer) return;
 
-    // 1. 출장 일수(Days) 계산
+    // 2. 계산 로직
     let tripDays = 1;
     if (startVal && endVal) {
         const start = new Date(startVal);
@@ -83,7 +82,6 @@ function updatePreview() {
         }
     }
 
-    // 2. 일비 & 식비 계산 규정 적용
     const tripType = getVal('tripType'); 
     const vehicle = getVal('vehicle');   
     const freeMeals = getNum('freeMeals');
@@ -92,12 +90,10 @@ function updatePreview() {
     let baseMeal = 25000;  
 
     if (tripType === '내' || tripType === '내4') {
-        baseDaily = 20000; 
+        baseDaily = (tripType === '내') ? 10000 : 20000; 
         baseMeal = 0;      
-        if(tripType === '내') baseDaily = 10000; // 4시간 미만 감액 예시 규칙 적용 커스텀
     }
 
-    // 자가용('personal') 또는 업무용 차량 이용 시 일비 50% 감액
     if (vehicle === 'company' || vehicle === 'personal' || vehicle === 'exclusive') {
         baseDaily = baseDaily / 2;
     }
@@ -107,60 +103,51 @@ function updatePreview() {
     let mealExpense = (baseMeal * tripDays) - (freeMeals * mealDeductionPerMeal);
     if (mealExpense < 0) mealExpense = 0;
 
-    // 3. 숙박비 계산
     const lodgingPersonal = getNum('lodgingPersonalAmount');
     const lodgingCorp = getNum('lodgingCorpAmount');
     const lodgingExpense = lodgingPersonal + lodgingCorp;
 
+    const transportExpense = getNum('transportFarePersonal') + getNum('transportFuelPersonal') + 
+                             getNum('transportParkingPersonal') + getNum('transportHipassPersonal') +
+                             getNum('transportFareCorp') + getNum('transportFuelCorp') + 
+                             getNum('transportParkingCorp') + getNum('transportHipassCorp');
+
+    const totalExpense = dailyExpense + mealExpense + lodgingExpense + transportExpense;
+
+    // 3. UI 업데이트 (기존 ID들 유지)
+    // 숙박비 상세 문구
     const previewTextEl = document.getElementById('lodgingPreviewText');
     if (previewTextEl) {
-        if (lodgingExpense > 0) {
-            previewTextEl.innerText = `[입력값: ${lodgingExpense.toLocaleString()} 원]`;
-        } else {
-            previewTextEl.innerText = ""; 
-        }
+        previewTextEl.innerText = lodgingExpense > 0 ? `[입력값: ${lodgingExpense.toLocaleString()} 원]` : "";
     }
 
-    // 4. 교통비 계산
-    const transportExpense = 
-        getNum('transportFarePersonal') + getNum('transportFuelPersonal') + 
-        getNum('transportParkingPersonal') + getNum('transportHipassPersonal') +
-        getNum('transportFareCorp') + getNum('transportFuelCorp') + 
-        getNum('transportParkingCorp') + getNum('transportHipassCorp');
-
-    // 누적 합계 디스플레이 업데이트
+    // 교통비 합계
     const transDisplay = document.getElementById('transportTotalDisplay');
     if(transDisplay) transDisplay.innerText = `${transportExpense.toLocaleString()}원`;
 
-    // 5. 총 여비 합계
-    const totalExpense = dailyExpense + mealExpense + lodgingExpense + transportExpense;
-
-    // 6. 대시보드 카드 동적 렌더링
+    // 4. 대시보드 카드 렌더링
     previewContainer.innerHTML = `
-        <div class="cost-card-box" style="padding: 14px 10px;">
+        <div class="cost-card-box">
             <span class="cost-card-label">일비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${dailyExpense.toLocaleString()}</div>
-            <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
+            <div class="cost-card-value">${dailyExpense.toLocaleString()}</div>
+            <div class="cost-card-sub">(개인)</div>
         </div>
-        <div class="cost-card-box" style="padding: 14px 10px;">
+        <div class="cost-card-box">
             <span class="cost-card-label">식비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${mealExpense.toLocaleString()}</div>
-            <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
+            <div class="cost-card-value">${mealExpense.toLocaleString()}</div>
+            <div class="cost-card-sub">(개인)</div>
         </div>
-        <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
+        <div class="cost-card-box">
             <span class="cost-card-label">숙박비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${lodgingExpense.toLocaleString()}</div>
-            <div style="height: 18px;"></div>
+            <div class="cost-card-value">${lodgingExpense.toLocaleString()}</div>
         </div>
-        <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
+        <div class="cost-card-box">
             <span class="cost-card-label">교통비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${transportExpense.toLocaleString()}</div>
-            <div style="height: 18px;"></div>
+            <div class="cost-card-value">${transportExpense.toLocaleString()}</div>
         </div>
-        <div class="cost-card-box total-box" style="padding: 14px 10px; background-color: #e2f0fd; border-color: #b3d7fc; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
+        <div class="cost-card-box total-box" style="background-color: #e2f0fd;">
             <span class="cost-card-label" style="color: #005691;">여비합계</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700; color: #005691; margin: auto 0;">${totalExpense.toLocaleString()}원</div>
-            <div style="height: 18px;"></div>
+            <div class="cost-card-value" style="color: #005691;">${totalExpense.toLocaleString()}원</div>
         </div>
     `;
 }
