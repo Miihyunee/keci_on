@@ -9,9 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof updatePreview === 'function') updatePreview();
 });
 
-/**
- * 날짜 변경 시 숙박비 입력 제어 로직
- */
+// [4번 문제 해결] 당일 출장 시 숙박비 입력 제한 및 경고 팝업 로직
 function onDateChange() {
     const startEl = document.getElementById('dateStart');
     const endEl = document.getElementById('dateEnd');
@@ -23,20 +21,45 @@ function onDateChange() {
 
     if (!startEl || !endEl) return;
 
-    // 시작일과 종료일이 같으면 당일 출장(0박) 처리
+    // 시작일과 종료일이 같아 '당일(1일)' 출장인 경우
     if (startEl.value && endEl.value && startEl.value === endEl.value) {
-        if (lpNights) { lpNights.value = '0'; lpNights.disabled = true; }
-        if (lpAmount) { lpAmount.value = '0'; lpAmount.disabled = true; }
-        if (lcNights) { lcNights.value = '0'; lcNights.disabled = true; }
-        if (lcAmount) { lcAmount.value = '0'; lcAmount.disabled = true; }
-    } else {
-        if (lpNights) lpNights.disabled = false;
-        if (lpAmount) lpAmount.disabled = false;
-        if (lcNights) lcNights.disabled = false;
-        if (lcAmount) lcAmount.disabled = false;
+        const hasValue = (lpAmount && parseInt(lpAmount.value || 0, 10) > 0) || 
+                        (lcAmount && parseInt(lcAmount.value || 0, 10) > 0) ||
+                        (lpNights && parseInt(lpNights.value || 0, 10) > 0) || 
+                        (lcNights && parseInt(lcNights.value || 0, 10) > 0);
+        
+        if (hasValue) {
+            alert("[1박 미만의 출장의 경우 숙박비는 입력할 수 없습니다.]");
+        }
+        
+        if (lpNights) lpNights.value = '0';
+        if (lpAmount) lpAmount.value = '0';
+        if (lcNights) lcNights.value = '0';
+        if (lcAmount) lcAmount.value = '0';
     }
 
     if (typeof updatePreview === 'function') updatePreview();
+}
+
+// [1번 문제 해결] 샘플 데이터 로딩 함수 수정 예시
+// (기존 파일 내 샘플 데이터 주입 단락을 찾아 아래 형태로 필드명을 매핑해 주세요)
+function loadSampleData() {
+    // ... 기타 성명, 출장지 등 기존 샘플 코드 유지 ...
+    
+    const startInput = document.getElementById('dateStart');
+    const endInput = document.getElementById('dateEnd');
+    if(startInput && endInput) {
+        startInput.value = "2026-07-14";
+        endInput.value = "2026-07-16"; // 2박 3일 예시
+    }
+
+    // 숙박일수와 금액을 논리에 맞게 동시 주입
+    if(document.getElementById('lodgingPersonalNights')) document.getElementById('lodgingPersonalNights').value = "2";
+    if(document.getElementById('lodgingPersonalAmount')) document.getElementById('lodgingPersonalAmount').value = "160000"; 
+    if(document.getElementById('lodgingCorpNights')) document.getElementById('lodgingCorpNights').value = "0";
+    if(document.getElementById('lodgingCorpAmount')) document.getElementById('lodgingCorpAmount').value = "0";
+
+    if (typeof onDateChange === 'function') onDateChange();
 }
 
 /**
@@ -311,6 +334,11 @@ function addRoster() {
     const destination = getVal('destination');
     const dateStart = getVal('dateStart');
     const dateEnd = getVal('dateEnd');
+
+    // 하이픈(-)을 슬래시(/)로 변경하여 yyyy/mm/dd 형태로 통일
+    const formattedStart = dateStart.replace(/-/g, '/');
+    const formattedEnd = dateEnd.replace(/-/g, '/');
+    const period = `${formattedStart} ~ ${formattedEnd}`;
     
     if (!name || !destination || !dateStart || !dateEnd) {
         alert("⚠️ 필수 항목 입력 누락\n출장자 성명, 출장지, 출장 시작일 및 종료일을 모두 명확히 입력하셔야 명부 등록이 가능합니다.");
