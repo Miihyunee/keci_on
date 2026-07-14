@@ -230,81 +230,65 @@ function clearAll() { alert('모든 명부가 비워졌습니다.'); }
  * 시뮬레이션 샘플 데이터를 화면의 입력 필드에 자동으로 주입하는 함수
  */
 function loadSampleData() {
-    // 1. 기본 정보 입력 필드 값 주입
-    const nameEl = document.getElementById('name');
-    const roleEl = document.getElementById('role');
-    const destinationEl = document.getElementById('destination');
-    const purposeEl = document.getElementById('purpose');
-    const dateStartEl = document.getElementById('dateStart');
-    const dateEndEl = document.getElementById('dateEnd');
+    console.log("HTML 내부 샘플 로드 함수 실행");
 
-    if (nameEl) nameEl.value = '홍길동';
-    if (roleEl) roleEl.value = '11'; // 7급 선택
-    if (destinationEl) destinationEl.value = '정부세종청사';
-    if (purposeEl) purposeEl.value = '기후부 업무보고';
-
-    // 2. 날짜 설정 (오늘부터 2박 3일 일정으로 자동 설정)
-    const today = new Date();
-    const afterTwoDays = new Date();
-    afterTwoDays.setDate(today.getDate() + 2);
-
-    const formatDate = (date) => {
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
+    const setVal = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
     };
 
-    if (dateStartEl) dateStartEl.value = formatDate(today);
-    if (dateEndEl) dateEndEl.value = formatDate(afterTwoDays);
+    try {
+        // 1. 기본 정보 주입
+        setVal('name', '홍길동');
+        setVal('role', '11');
+        setVal('destination', '정부세종청사');
+        setVal('purpose', '기후부 업무보고');
 
-    // 3. 여비 적용 조건 주입
-    const tripTypeEl = document.getElementById('tripType');
-    const gradeEl = document.getElementById('grade');
-    const regionEl = document.getElementById('region');
-    const vehicleEl = document.getElementById('vehicle');
+        // 2. 날짜 설정 (오늘부터 2박 3일)
+        const today = new Date();
+        const afterTwoDays = new Date();
+        afterTwoDays.setDate(today.getDate() + 2);
 
-    if (tripTypeEl) tripTypeEl.value = '외';
-    if (gradeEl) gradeEl.value = '2'; // 제2호 일반 직원
-    if (regionEl) regionEl.value = '기타'; // 경기도
-    if (vehicleEl) vehicleEl.value = 'public'; // 일반 대중교통 이용
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
 
-    // 4. 숙박비 및 식사 공제 횟수 설정
-    const lodgingActualEl = document.getElementById('lodgingActual');
-    const lodgingPersonalNightsEl = document.getElementById('lodgingPersonalNights');
-    const lodgingCorpNightsEl = document.getElementById('lodgingCorpNights');
-    const freeMealsEl = document.getElementById('freeMeals');
+        setVal('dateStart', formatDate(today));
+        setVal('dateEnd', formatDate(afterTwoDays));
 
-    if (lodgingActualEl) lodgingActualEl.value = '70000'; // 1박 상한 7만원
-    if (lodgingPersonalNightsEl) lodgingPersonalNightsEl.value = '2'; // 개인 2박
-    if (lodgingCorpNightsEl) lodgingCorpNightsEl.value = '0';
-    if (freeMealsEl) freeMealsEl.value = '0';
+        // 3. 여비 적용 조건 주입
+        setVal('tripType', '외');
+        setVal('grade', '2');
+        setVal('region', '기타');
+        setVal('vehicle', 'public');
 
-    // 5. 교통비 세부 실비 정산값 설정
-    const tfPersonal = document.getElementById('transportFarePersonal');
-    const tfCorp = document.getElementById('transportFareCorp');
-    const tFuelPersonal = document.getElementById('transportFuelPersonal');
-    const tFuelCorp = document.getElementById('transportFuelCorp');
-    const tParkingPersonal = document.getElementById('transportParkingPersonal');
-    const tParkingCorp = document.getElementById('transportParkingCorp');
-    const tHipassPersonal = document.getElementById('transportHipassPersonal');
-    const tHipassCorp = document.getElementById('transportHipassCorp');
+        // 4. 숙박비 및 식사 공제 횟수 설정
+        setVal('lodgingActual', '70000');
+        setVal('lodgingPersonalNights', '2');
+        setVal('lodgingCorpNights', '0');
+        setVal('freeMeals', '0');
 
-    if (tfPersonal) tfPersonal.value = '35000'; // 개인 대중교통비 35,000원
-    if (tfCorp) tfCorp.value = '0';
-    if (tFuelPersonal) tFuelPersonal.value = '0';
-    if (tFuelCorp) tFuelCorp.value = '0';
-    if (tParkingPersonal) tParkingPersonal.value = '0';
-    if (tParkingCorp) tParkingCorp.value = '0';
-    if (tHipassPersonal) tHipassPersonal.value = '0';
-    if (tHipassCorp) tHipassCorp.value = '0';
+        // 5. 교통비 세부 실비 정산값 설정
+        setVal('transportFarePersonal', '35000');
+        setVal('transportFareCorp', '0');
+        setVal('transportFuelPersonal', '0');
+        setVal('transportFuelCorp', '0');
+        setVal('transportParkingPersonal', '0');
+        setVal('transportParkingCorp', '0');
+        setVal('transportHipassPersonal', '0');
+        setVal('transportHipassCorp', '0');
 
-    // 6. 변경 사항 감지 및 실시간 대시보드 화면 동기화 업데이트 실행
-    onDateChange();
-    onTripTypeChange();
-    onVehicleChange();
-    updatePreview();
+        // 6. 외부 스크립트에 선언된 업데이트 함수 강제 호출 시도
+        if (typeof onDateChange === 'function') onDateChange();
+        if (typeof onTripTypeChange === 'function') onTripTypeChange();
+        if (typeof onVehicleChange === 'function') onVehicleChange();
+        if (typeof updatePreview === 'function') updatePreview();
 
-    // 완료 알림
-    alert('시뮬레이션 샘플 데이터를 성공적으로 로드했습니다.');
-} }
+        alert('시뮬레이션 샘플 데이터를 성공적으로 로드했습니다.');
+    } catch (error) {
+        console.error("샘플 로드 중 오류 발생:", error);
+    }
+}
