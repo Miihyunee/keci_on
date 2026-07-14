@@ -206,31 +206,82 @@
           <div class="form-section">
             <div class="form-section-title">여비 가감 및 실비 정산</div>
             <div class="form-grid">
-              <div class="form-field hideable" id="lodgingField">
-                <label for="lodgingActual">숙박비 <span class="badge">1박 상한 기준</span></label>
-                <div class="input-wrap">
-                  <input type="number" id="lodgingActual" value="0" min="0" step="1000" oninput="onNumberInput(this); updatePreview()">
-                  <span class="unit">원</span>
-                </div>
-                <div class="field-sub"><span class="comma-hint" id="lodgingActualHint"></span></div>
-                
-                <div class="split-inputs">
-                  <div class="split-row">
-                    <span class="split-label personal-label">개인</span>
-                    <div class="input-wrap">
-                      <input type="number" id="lodgingPersonalNights" value="0" min="0" max="364" oninput="updatePreview()">
-                      <span class="unit">박</span>
-                    </div>
-                  </div>
-                  <div class="split-row">
-                    <span class="split-label corp-label">법인</span>
-                    <div class="input-wrap">
-                      <input type="number" id="lodgingCorpNights" value="0" min="0" max="364" oninput="updatePreview()">
-                      <span class="unit">박</span>
-                    </div>
-                  </div>
-                </div>
+        <div class="form-field hideable" id="lodgingField">
+          <!-- 4번: 마우스 오버 시 상한 기준 안내 표가 표출되는 레이블 -->
+          <label style="display: flex; align-items: center; gap: 6px;">
+            숙박비
+            <div class="tooltip-container" style="color: #0284c7; font-size: 13px; display: inline-block; position: relative; font-weight: normal;">
+              <i class="fa-solid fa-circle-info"></i> (1박 상한 기준 안내)
+              <div class="tooltip-box" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; background: #ffffff; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 280px; color: #334155; font-size: 12px; line-height: 1.5; margin-top: 5px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: center; border: 1px solid #e2e8f0;">
+                  <thead style="background: #f1f5f9; font-weight: bold;">
+                    <tr>
+                      <th colspan="2" style="padding: 6px; border-bottom: 1px solid #cbd5e1; font-size: 12px;">구분 기준</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="2" style="padding: 6px; text-align: left; font-size: 11px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; line-height: 1.4;">
+                        <b>제1호:</b> 실비 정산<br>
+                        <b>제2호:</b> 아래 상한액 이하의 실비
+                      </td>
+                    </tr>
+                    <tr style="background: #f1f5f9; font-weight: bold;">
+                      <td style="padding: 6px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #cbd5e1; width: 50%;">지역</td>
+                      <td style="padding: 6px; border-bottom: 1px solid #cbd5e1;">상한 금액</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">서울특별시</td>
+                      <td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right; padding-right: 12px; font-weight: 600;">100,000원</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">광역시</td>
+                      <td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right; padding-right: 12px; font-weight: 600;">80,000원</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; border-right: 1px solid #e2e8f0;">그 밖의 지역</td>
+                      <td style="padding: 6px; text-align: right; padding-right: 12px; font-weight: 600;">70,000원</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
+          </label>
+        
+          <!-- 3번: 개인/법인 정렬 및 박, 원 입력칸 분리 레이아웃 -->
+          <div class="split-inputs" style="display: flex; flex-direction: column; gap: 8px;">
+            
+            <!-- 개인 행 -->
+            <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
+              <span class="split-label personal-label" style="width: 40px;">개인</span>
+              <div class="input-wrap">
+                <input type="number" id="lodgingPersonalNights" value="0" min="0" max="364" oninput="updatePreview()" style="width: 50px; text-align: center;">
+                <span class="unit">박</span>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="lodgingPersonalAmount" value="0" min="0" step="1000" oninput="updatePreview()" style="width: 120px; text-align: right;">
+                <span class="unit">원</span>
+              </div>
+            </div>
+            
+            <!-- 법인 행 -->
+            <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
+              <span class="split-label corp-label" style="width: 40px;">법인</span>
+              <div class="input-wrap">
+                <input type="number" id="lodgingCorpNights" value="0" min="0" max="364" oninput="updatePreview()" style="width: 50px; text-align: center;">
+                <span class="unit">박</span>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="lodgingCorpAmount" value="0" min="0" step="1000" oninput="updatePreview()" style="width: 120px; text-align: right;">
+                <span class="unit">원</span>
+              </div>
+            </div>
+        
+          </div>
+        
+          <!-- 2번: 값이 공백이나 0이 될 때 잔상을 완전히 지워주기 위한 실시간 가이드 텍스트 노드 -->
+          <div id="lodgingPreviewText" style="margin-top: 6px; font-size: 13px; color: #0284c7; font-weight: 500; min-height: 18px;"></div>
+        </div>
 
               <div class="form-field hideable" id="freeMealsField">
                 <label for="freeMeals">식사 제공 공제회수</label>
