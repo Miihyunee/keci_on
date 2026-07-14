@@ -723,22 +723,50 @@ body {
     .trip-item .amount { margin: 0; width: 100%; text-align: right; }
 }
 
-/* 인쇄(Print) 커스텀 서식 보정 */
+/* 인쇄(Print) 커스텀 서식 보정 (잘림 현상 해결 통합본) */
 @media print {
-    body { background: #fff; padding: 0; margin: 0; font-size: 9pt; }
-    .page-content { display: block; }
+    /* [수정] html과 body의 스크롤 및 높이 제한을 완전히 풀어 첫 페이지 잘림 차단 */
+    html, body { 
+        background: #fff; 
+        padding: 0; 
+        margin: 0; 
+        font-size: 9pt; 
+        height: auto !important; 
+        overflow: visible !important; 
+    }
+    
+    /* [추가] 화면을 감싸는 전체 레이아웃 박스들의 flex/grid 속성을 해제 */
+    .app-container, .main-wrapper, main, .content { 
+        display: block !important; 
+        position: relative !important;
+        overflow: visible !important; 
+        width: 100% !important;
+        padding: 0 !important; 
+        max-width: 100% !important;
+    }
+
+    .page-content { display: block; overflow: visible !important; }
+    
+    /* 기존 숨김 항목 유지 */
     .sidebar, .main-navbar, .no-print, .beta-notice, #listCard, .site-footer { display: none !important; }
-    .content { padding: 0; max-width: 100%; }
-    .card { border: none; box-shadow: none; margin: 0; }
-    .card-body { padding: 0; }
+    
+    /* 카드 영역 스크롤 및 그림자 무력화 */
+    .card { border: none; box-shadow: none; margin: 0; background: transparent !important; }
+    .card-body { padding: 0; overflow: visible !important; }
     .card-header h2 { font-size: 14pt; font-weight: 700; border-bottom: 2px solid #000; padding-bottom: 8px; }
     
-    .table-modern { border: 1.5px solid #000; font-size: 8pt; width: 100%; table-layout: fixed; }
+    /* 기존 테이블 스타일 유지 + 테두리 붕괴 방지(border-collapse) 추가 */
+    .table-modern { border: 1.5px solid #000; font-size: 8pt; width: 100%; table-layout: fixed; border-collapse: collapse; }
     .table-modern th, .table-modern td { border: 1px solid #000 !important; padding: 6px 4px; color: #000; }
     .table-modern th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     
+    /* [추가] 테이블 중간 행이 페이지 경계선에서 보기 싫게 쪼개지는 현상 방지 */
+    .table-modern tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+    
     .regulation-note { background: none; border: 1px solid #000; color: #000; font-size: 8pt; margin-top: 12px; }
     .regulation-note strong { color: #000; }
+    
+    /* 기존 가로 인쇄 규격 유지 */
     @page { size: A4 landscape; margin: 10mm; }
 }
 /* 1. 모든 숫자형 입력창에서 우측 업앤다운(스핀) 버튼을 완전히 제거 */
@@ -786,48 +814,4 @@ input[type="number"] {
     gap: 8px !important;
     flex-wrap: nowrap !important; /* 아래로 떨어지는 것 방지 */
     width: 100% ;
-}
-
-/* ==========================================
-   3b. PDF 인쇄 잘림 방지 표준 규격 설정
-   ========================================== */
-@media print {
-    /* 브라우저 스크롤 하단 가림막 파괴 및 전면 초기화 */
-    html, body {
-        width: 210mm; /* A4 가로/세로 규격 강제 매칭 */
-        height: auto !important;
-        overflow: visible !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* 화면 분할 레이아웃이 있을 경우 인쇄 시 무력화 */
-    .app-container, .main-wrapper, main, .content-body {
-        display: block !important;
-        position: relative !important;
-        overflow: visible !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 10mm !important; /* 사방 여백 확보 */
-    }
-
-    /* 출력할 데이터 테이블 잘림 방지 */
-    table {
-        width: 100% !important;
-        table-layout: auto !important;
-        page-break-inside: auto;
-    }
-    
-    tr {
-        page-break-inside: avoid !important; /* 행 중간이 페이지 경계에서 잘리는 현상 방지 */
-        page-break-after: auto !important;
-    }
-
-    /* 사이드바 등 불필요한 요소 제거 */
-    .no-print, button, .sidebar, header, nav, .filter-box {
-        display: none !important;
-    }
 }
