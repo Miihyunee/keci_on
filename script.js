@@ -293,19 +293,26 @@ function loadSampleData() {
     }
 }
 /**
- * 개인/법인 구분 데이터를 정밀 추출하여 명부 표에 추가합니다.
+ * 필수값 검증 및 개인/법인 구분 데이터를 명부 표에 추가합니다.
  */
 function addRoster() {
-    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+    // 공백 제거(trim)를 포함하여 안전하게 값을 가져오는 함수
+    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
     const parseKrw = (str) => parseInt(str.replace(/[^0-9]/g, '') || 0, 10);
 
-    // 1. 기본 인적 사항 추출
-    const name = getVal('name') || '미입력';
-    const destination = getVal('destination') || '-';
+    // 1. 필수 텍스트 항목 검증
+    const name = getVal('name');
+    const destination = getVal('destination');
+    
+    if (!name || !destination) {
+        alert("출장자 성명 및 출장지 등 필수 항목을 반드시 입력해 주십시오.");
+        return; // 조건을 만족하지 않으면 아래 로직을 실행하지 않고 함수 종료
+    }
+
     const period = `${getVal('dateStart')} ~ ${getVal('dateEnd')}`;
 
-    // 2. 일비/식비 추출 (대시보드 카드에서 추출, 규정상 전액 개인 지급으로 간주)
+    // 2. 일비/식비 추출
     const cardValues = document.querySelectorAll('.cost-card-value');
     if(cardValues.length < 5) return alert("대시보드 렌더링이 완료되지 않았습니다.");
     
@@ -314,12 +321,12 @@ function addRoster() {
     const mealPersonal = parseKrw(cardValues[1].innerText);
     const mealCorp = 0;
 
-    // 3. 숙박비 정밀 추출 (실비 x 숙박 일수 기반)
+    // 3. 숙박비 정밀 추출
     const lodgingActual = getNum('lodgingActual');
     const lodgingPersonal = lodgingActual * getNum('lodgingPersonalNights');
     const lodgingCorp = lodgingActual * getNum('lodgingCorpNights');
 
-    // 4. 교통비 정밀 추출 (입력창 항목별 합산)
+    // 4. 교통비 정밀 추출
     const transPersonal = getNum('transportFarePersonal') + getNum('transportFuelPersonal') + getNum('transportParkingPersonal') + getNum('transportHipassPersonal');
     const transCorp = getNum('transportFareCorp') + getNum('transportFuelCorp') + getNum('transportParkingCorp') + getNum('transportHipassCorp');
 
@@ -355,41 +362,50 @@ function addRoster() {
     tbody.appendChild(row);
 }
 /**
- * 명부 테이블 영역(.roster-container)을 PDF 파일로 변환합니다.
+ * 왜곡 방지 및 규정 텍스트가 포함된 PDF 출력 로직
  */
 function generatePDF() {
-    const element = document.getElementById('rosterContainer');
-    if (!element) return;
+    const target = document.getElementById('pdfTargetWrapper');
+    if (!target) return;
 
-    // 1. PDF 출력 전용 상태로 DOM 임시 변경
-    const noPrintElements = element.querySelectorAll('.no-print');
-    noPrintElements.forEach(el => el.style.display = 'none');
+    // 1. 캡처 전용 환경 구축 (텍스트 활성화 및 관리 버튼 숨김)
+    document.getElementById('pdfHeader').style.display = 'block';
+    document.getElementById('pdfFooter').style.display = 'block';
     
-    // 배경색 강제 지정 (투명 배경으로 인한 캡처 오류 방지)
-    const originalBackground = element.style.background;
-    element.style.background = '#ffffff';
+    const noPrintElements = target.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => el.style.display = 'none');
 
-    // 2. 엔진 옵션 최적화 (스크롤 위치 고정, 크기 보정)
+    // 2. 표 깨짐 방지 장치 (오버플로우 해제 및 너비 강제 확장)
+    const scrollWrapper = document.getElementById('tableScrollWrapper');
+    const originalOverflow = scrollWrapper.style.overflowX;
+    scrollWrapper.style.overflowX = 'visible'; // 스크롤 바를 없애고 전체 표를 펼침
+    
+    // 3. 엔진 옵션 설정 (A4 가로 방향 여백 확보 및 해상도 조정)
     const opt = {
-        margin:       10,
-        filename:     '출장자_여비지급명부.pdf',
+        margin:       [15, 10, 15, 10], // 상단, 우측, 하단, 좌측 여백(mm)
+        filename:     '출장별첨_여비지급명부.pdf',
         image:        { type: 'jpeg', quality: 1.0 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true, 
-            scrollY: 0, // 💡 핵심: 캡처 시 스크롤 위치를 0으로 강제 고정하여 빈 영역 캡처 방지
-            backgroundColor: '#ffffff'
+            scrollY: 0,
+            windowWidth: 1200 // 캔버스 캡처용 가상 윈도우 너비를 충분히 넓게 설정하여 왜곡 원천 차단
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
-    // 3. PDF 변환 및 원래 상태 복구
-    html2pdf().set(opt).from(element).save().then(() => {
+    // 4. 비동기 렌더링 및 종료 후 원상 복구
+    html2pdf().set(opt).from(target).save().then(() => {
+        document.getElementById('pdfHeader').style.display = 'none';
+        document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
-        element.style.background = originalBackground;
+        scrollWrapper.style.overflowX = originalOverflow;
     }).catch(err => {
-        console.error("PDF 생성 중 시스템 오류 발생:", err);
+        console.error("PDF 생성 에러:", err);
+        // 에러 발생 시에도 화면 원상 복구 보장
+        document.getElementById('pdfHeader').style.display = 'none';
+        document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
-        element.style.background = originalBackground;
+        scrollWrapper.style.overflowX = originalOverflow;
     });
 }
