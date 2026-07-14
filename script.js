@@ -119,39 +119,43 @@ function updatePreview() {
     const totalExpense = dailyExpense + mealExpense + lodgingExpense + transportExpense;
 
     // HTML 내부 구조 주입 (제공받은 스크린샷 이미지 스타일 및 마크업 반영)
+// HTML 내부 구조 주입 (기존 하드코딩 스타일 제거하고 style.css 클래스 기반으로 매칭)
     previewContainer.innerHTML = `
-        <div class="expense-cards-wrapper" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 15px; margin-bottom: 5px;">
+        <div class="expense-cards-wrapper" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%;">
             
             <!-- 일비 -->
-            <div class="expense-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">일비</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${dailyExpense.toLocaleString()}</div>
-                <div><span style="font-size: 11px; background: #eff6ff; color: #3b82f6; padding: 2px 8px; border-radius: 4px; font-weight: 600;">(개인)</span></div>
+            <div class="cost-card-box">
+                <span class="cost-card-label">일비</span>
+                <div class="cost-card-value">${dailyExpense.toLocaleString()}</div>
+                <div style="margin-top: 4px;"><span class="badge-personal">(개인)</span></div>
             </div>
 
             <!-- 식비 -->
-            <div class="expense-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">식비</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${mealExpense.toLocaleString()}</div>
-                <div><span style="font-size: 11px; background: #eff6ff; color: #3b82f6; padding: 2px 8px; border-radius: 4px; font-weight: 600;">(개인)</span></div>
+            <div class="cost-card-box">
+                <span class="cost-card-label">식비</span>
+                <div class="cost-card-value">${mealExpense.toLocaleString()}</div>
+                <div style="margin-top: 4px;"><span class="badge-personal">(개인)</span></div>
             </div>
 
             <!-- 숙박비 -->
-            <div class="expense-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px;">숙박비</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0f172a;">${lodgingExpense.toLocaleString()}</div>
+            <div class="cost-card-box">
+                <span class="cost-card-label">숙박비</span>
+                <div class="cost-card-value">${lodgingExpense.toLocaleString()}</div>
+                <div style="margin-top: 4px; height: 16px;"></div> <!-- 빈 정렬 공간 유지 -->
             </div>
 
             <!-- 교통비 -->
-            <div class="expense-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 12px;">교통비</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0f172a;">${transportExpense.toLocaleString()}</div>
+            <div class="cost-card-box">
+                <span class="cost-card-label">교통비</span>
+                <div class="cost-card-value">${transportExpense.toLocaleString()}</div>
+                <div style="margin-top: 4px; height: 16px;"></div> <!-- 빈 정렬 공간 유지 -->
             </div>
 
             <!-- 여비합계 -->
-            <div class="expense-card total-highlight-card" style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px; padding: 20px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 700; color: #0369a1; margin-bottom: 12px;">여비합계</div>
-                <div style="font-size: 20px; font-weight: 800; color: #0284c7;">${totalExpense.toLocaleString()}원</div>
+            <div class="cost-card-box total-box">
+                <span class="cost-card-label" style="color: #0369a1;">여비합계</span>
+                <div class="cost-card-value">${totalExpense.toLocaleString()}원</div>
+                <div style="margin-top: 4px; height: 16px;"></div> <!-- 빈 정렬 공간 유지 -->
             </div>
 
         </div>
