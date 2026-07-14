@@ -723,51 +723,62 @@ body {
     .trip-item .amount { margin: 0; width: 100%; text-align: right; }
 }
 
-/* 인쇄(Print) 커스텀 서식 보정 (잘림 현상 해결 통합본) */
+/* ==========================================
+   [최종 보정] PDF 인쇄 및 출력 잘림 방지 결정판
+   ========================================== */
 @media print {
-    /* [수정] html과 body의 스크롤 및 높이 제한을 완전히 풀어 첫 페이지 잘림 차단 */
-    html, body { 
-        background: #fff; 
-        padding: 0; 
-        margin: 0; 
-        font-size: 9pt; 
-        height: auto !important; 
-        overflow: visible !important; 
-    }
-    
-    /* [추가] 화면을 감싸는 전체 레이아웃 박스들의 flex/grid 속성을 해제 */
-    .app-container, .main-wrapper, main, .content { 
-        display: block !important; 
-        position: relative !important;
-        overflow: visible !important; 
+    /* 1. 브라우저가 강제로 높이를 제한하거나 스크롤바를 숨기면서 내용을 자르는 현상 파괴 */
+    html, body {
         width: 100% !important;
-        padding: 0 !important; 
-        max-width: 100% !important;
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        position: static !important;
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    .page-content { display: block; overflow: visible !important; }
+    /* 2. Flex, Grid 등 모던 레이아웃이 인쇄 시 쪼개지는 버그 방지 (일반 블록으로 강제 전환) */
+    .app-container, .main-wrapper, main, .content, .page-content, .card, .card-body {
+        display: block !important;
+        position: static !important;
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 3. 테이블 요소가 페이지 경계에서 잘리거나 깨지지 않도록 선언 */
+    .table-modern {
+        display: table !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto !important;
+    }
     
-    /* 기존 숨김 항목 유지 */
-    .sidebar, .main-navbar, .no-print, .beta-notice, #listCard, .site-footer { display: none !important; }
-    
-    /* 카드 영역 스크롤 및 그림자 무력화 */
-    .card { border: none; box-shadow: none; margin: 0; background: transparent !important; }
-    .card-body { padding: 0; overflow: visible !important; }
-    .card-header h2 { font-size: 14pt; font-weight: 700; border-bottom: 2px solid #000; padding-bottom: 8px; }
-    
-    /* 기존 테이블 스타일 유지 + 테두리 붕괴 방지(border-collapse) 추가 */
-    .table-modern { border: 1.5px solid #000; font-size: 8pt; width: 100%; table-layout: fixed; border-collapse: collapse; }
-    .table-modern th, .table-modern td { border: 1px solid #000 !important; padding: 6px 4px; color: #000; }
-    .table-modern th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    
-    /* [추가] 테이블 중간 행이 페이지 경계선에서 보기 싫게 쪼개지는 현상 방지 */
-    .table-modern tr { page-break-inside: avoid !important; page-break-after: auto !important; }
-    
-    .regulation-note { background: none; border: 1px solid #000; color: #000; font-size: 8pt; margin-top: 12px; }
-    .regulation-note strong { color: #000; }
-    
-    /* 기존 가로 인쇄 규격 유지 */
-    @page { size: A4 landscape; margin: 10mm; }
+    .table-modern tr {
+        page-break-inside: avoid !important; /* 행 중간이 페이지 경계에서 쪼개지는 현상 절대 방지 */
+        page-break-after: auto !important;
+    }
+
+    /* 기존 가로 인쇄 규격 설정 */
+    @page { 
+        size: A4 landscape; 
+        margin: 15mm 10mm 15mm 10mm; 
+    }
+
+    /* 불필요한 내비게이션 요소 제거 */
+    .sidebar, .main-navbar, .no-print, .beta-notice, .site-footer { 
+        display: none !important; 
+    }
 }
 /* 1. 모든 숫자형 입력창에서 우측 업앤다운(스핀) 버튼을 완전히 제거 */
 input[type="number"]::-webkit-outer-spin-button,
@@ -803,15 +814,33 @@ input[type="number"] {
     overflow: visible !important;
 }
 
-/* ==========================================
-   3a. 도착권역 지자체 입력칸 수평 줄맞춤 교정
-   ========================================== */
-#locationSelectArea, 
-.destination-container,
-.arrival-group-row {
+/* 여비 적용 조건 및 지자체 입력칸 정렬 보정 */
+.destination-container, 
+.arrival-group-row,
+#locationSelectArea {
     display: flex !important;
+    flex-direction: row !important; /* 무조건 가로 한 줄 배정 */
+    align-items: center !important; /* 수직 중앙 정렬로 높낮이 맞춤 */
+    justify-content: flex-start !important;
+    gap: 8px !important;            /* 요소 간 간격 일치 */
+    flex-wrap: nowrap !important;   /* 가로폭이 좁아도 아래로 떨어지지 않도록 제한 */
+    width: 100% !important;
+    margin-bottom: 10px;
+}
+
+/* 입력창 내부에 있는 내부 wrap 요소 규격 일치화 */
+.arrival-group-row .input-wrap,
+#locationSelectArea .input-wrap {
+    display: inline-flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    flex-wrap: nowrap !important; /* 아래로 떨어지는 것 방지 */
-    width: 100% ;
+    flex-shrink: 0 !important;     /* 창이 찌그러지는 현상 방지 */
+}
+
+/* 텍스트 라벨과 인풋 박스의 높이 및 글꼴 라인 일치 */
+.arrival-group-row input, 
+.arrival-group-row select,
+#locationSelectArea input {
+    height: 36px !important;       /* 모든 입력창 높이 통일 */
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
