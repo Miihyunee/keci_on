@@ -15,140 +15,144 @@ document.addEventListener('DOMContentLoaded', function() {
 function onDateChange() {
     const startEl = document.getElementById('dateStart');
     const endEl = document.getElementById('dateEnd');
-    const lodgingActual = document.getElementById('lodgingActual');
-    const lodgingPersonalNights = document.getElementById('lodgingPersonalNights');
-    const lodgingCorpNights = document.getElementById('lodgingCorpNights');
+    
+    const lpNights = document.getElementById('lodgingPersonalNights');
+    const lpAmount = document.getElementById('lodgingPersonalAmount');
+    const lcNights = document.getElementById('lodgingCorpNights');
+    const lcAmount = document.getElementById('lodgingCorpAmount');
 
     if (!startEl || !endEl) return;
 
-    // 당일 출장 여부 확인 (시작일과 종료일이 같으면 당일 출장)
+    // 시작일과 종료일이 같으면 당일 출장(0박) 처리
     if (startEl.value && endEl.value && startEl.value === endEl.value) {
-        // 숙박비 관련 입력창 모두 비활성화 및 0 초기화
-        if (lodgingActual) { lodgingActual.value = '0'; lodgingActual.disabled = true; }
-        if (lodgingPersonalNights) { lodgingPersonalNights.value = '0'; lodgingPersonalNights.disabled = true; }
-        if (lodgingCorpNights) { lodgingCorpNights.value = '0'; lodgingCorpNights.disabled = true; }
+        if (lpNights) { lpNights.value = '0'; lpNights.disabled = true; }
+        if (lpAmount) { lpAmount.value = '0'; lpAmount.disabled = true; }
+        if (lcNights) { lcNights.value = '0'; lcNights.disabled = true; }
+        if (lcAmount) { lcAmount.value = '0'; lcAmount.disabled = true; }
     } else {
-        // 1박 이상일 경우 입력창 활성화
-        if (lodgingActual) lodgingActual.disabled = false;
-        if (lodgingPersonalNights) lodgingPersonalNights.disabled = false;
-        if (lodgingCorpNights) lodgingCorpNights.disabled = false;
+        if (lpNights) lpNights.disabled = false;
+        if (lpAmount) lpAmount.disabled = false;
+        if (lcNights) lcNights.disabled = false;
+        if (lcAmount) lcAmount.disabled = false;
     }
 
-    // 기존에 존재하던 금액 재계산 함수 호출
     if (typeof updatePreview === 'function') updatePreview();
 }
 
 /**
- * [복원 적용 2] 실시간 대시보드 컴포넌트 렌더링 함수
- * 사용자가 올린 실물 이미지 카드 UI 디자인과 명칭을 100% 동일하게 복원 구현했습니다.
+ * 대시보드 상단 카드 및 숙박비 가이드 문구를 실시간으로 업데이트하는 핵심 함수
  */
 function updatePreview() {
-    const previewContainer = document.getElementById('preview');
+    // 안전하게 DOM 요소를 찾아 값을 가져오는 헬퍼 함수들
+    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
+    
+    // 0. 대시보드를 그려줄 부모 컨테이너 탐색 (HTML 구조에 맞춰 자동 매칭)
+    const previewContainer = document.getElementById('costDashboardContainer') || document.querySelector('.cost-dashboard-container');
     if (!previewContainer) return;
 
-    // 날짜 값 읽기
-    const startDateInput = document.getElementById('dateStart');
-    const endDateInput = document.getElementById('dateEnd');
-    
-    let totalDays = 0;
-    if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
-        const start = new Date(startDateInput.value);
-        const end = new Date(endDateInput.value);
-        totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    // 1. 출장 일수(Days) 계산 logic
+    const dateStart = getVal('dateStart');
+    const dateEnd = getVal('dateEnd');
+    let tripDays = 1; // 기본 1일 출장으로 가정
+
+    if (dateStart && dateEnd) {
+        const start = new Date(dateStart);
+        const end = new Date(dateEnd);
+        if (!isNaN(start) && !isNaN(end)) {
+            const diffTime = end - start;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            tripDays = diffDays >= 0 ? diffDays + 1 : 1;
+        }
     }
 
-    // 기본 값 세팅 (기준단가: 일비 25,000 / 식비 25,000)
-    // 날짜 선택이 비어있으면 초기 1일 기준으로 임시 계산하여 보여줍니다.
-    const activeDays = totalDays > 0 ? totalDays : 1;
+    // 2. 일비 & 식비 기본 규정 적용 계산
+    const tripType = getVal('tripType'); // '외' (근무지 외), '내' (근무지 내)
+    const vehicle = getVal('vehicle');   // 'public' (대중교통), 'corp'/'personal' (자동차류)
+    const freeMeals = getNum('freeMeals');
 
-    const dailyRate = 25000;
-    const mealRate = 25000;
+    let baseDaily = 25000; // 근무지 외 기본 일비 2.5만
+    let baseMeal = 25000;  // 근무지 외 기본 식비 2.5만
 
-    let dailyExpense = dailyRate * activeDays;
-    let mealExpense = mealRate * activeDays;
-
-    // 만약 식사 제공 공제회수(freeMeals)가 입력되었다면 식비 공제 (예: 1회당 8,000원 공제 예시 기준)
-    const freeMealsEl = document.getElementById('freeMeals');
-    if (freeMealsEl && freeMealsEl.value > 0) {
-        mealExpense = Math.max(0, mealExpense - (freeMealsEl.value * 8330)); // 규정 공제액 차감
+    if (tripType === '내') {
+        baseDaily = 20000; // 근무지 내 기본 일비 2만
+        baseMeal = 0;      // 근무지 내 식비 없음
     }
 
-    // 입력된 숙박비 합산 (개인 박수 + 법인 박수 연동)
-    const lodgingActualEl = document.getElementById('lodgingActual');
-    const lodgingPersonalNights = parseInt(document.getElementById('lodgingPersonalNights')?.value) || 0;
-    const lodgingCorpNights = parseInt(document.getElementById('lodgingCorpNights')?.value) || 0;
-    const lodgingRate = parseInt(lodgingActualEl?.value) || 0;
-    const lodgingExpense = lodgingRate * (lodgingPersonalNights + lodgingCorpNights);
-
-    // 교통비 세부 항목 총합 계산
-    const transFarePersonal = parseInt(document.getElementById('transportFarePersonal')?.value) || 0;
-    const transFareCorp = parseInt(document.getElementById('transportFareCorp')?.value) || 0;
-    const transFuelPersonal = parseInt(document.getElementById('transportFuelPersonal')?.value) || 0;
-    const transFuelCorp = parseInt(document.getElementById('transportFuelCorp')?.value) || 0;
-    const transParkingPersonal = parseInt(document.getElementById('transportParkingPersonal')?.value) || 0;
-    const transParkingCorp = parseInt(document.getElementById('transportParkingCorp')?.value) || 0;
-    const transHipassPersonal = parseInt(document.getElementById('transportHipassPersonal')?.value) || 0;
-    const transHipassCorp = parseInt(document.getElementById('transportHipassCorp')?.value) || 0;
-
-    const transportExpense = transFarePersonal + transFareCorp + transFuelPersonal + transFuelCorp + 
-                             transParkingPersonal + transParkingCorp + transHipassPersonal + transHipassCorp;
-
-    // 교통비 누적 디스플레이 값 동기화
-    const transportTotalDisplay = document.getElementById('transportTotalDisplay');
-    if (transportTotalDisplay) {
-        transportTotalDisplay.textContent = `${transportExpense.toLocaleString()}원`;
+    // [규정 준용 적용] 자가용 또는 업무용 차량 이용 시 일비 2분의 1(50%) 감액
+    if (vehicle !== 'public') {
+        baseDaily = baseDaily / 2;
     }
 
-    // 최종 여비 합계 산출
+    // 최종 일비 및 무료 식사 공제를 반영한 식비 산출
+    const dailyExpense = baseDaily * tripDays;
+    const mealDeductionPerMeal = tripType === '외' ? 8300 : 0; // 한 끼당 공제액 예시
+    let mealExpense = (baseMeal * tripDays) - (freeMeals * mealDeductionPerMeal);
+    if (mealExpense < 0) mealExpense = 0;
+
+    // 3. 숙박비 계산 (개인 금액 + 법인 금액 합산)
+    const lodgingPersonal = getNum('lodgingPersonalAmount');
+    const lodgingCorp = getNum('lodgingCorpAmount');
+    const lodgingExpense = lodgingPersonal + lodgingCorp;
+
+    // [오류 해결] 숙박비를 입력했다가 지웠을 때 가이드 문구 잔상 제거 처리
+    const previewTextEl = document.getElementById('lodgingPreviewText');
+    if (previewTextEl) {
+        if (lodgingExpense > 0) {
+            previewTextEl.innerText = `[입력값: ${lodgingExpense.toLocaleString()} 원]`;
+        } else {
+            previewTextEl.innerText = ""; // 0원이거나 비어있으면 깔끔하게 비움
+        }
+    }
+
+    // 4. 교통비 계산 (개인 실비 항목 일체 + 법인 실비 항목 일체 합산)
+    // 일반 대중교통('public')일 때는 주유/주차/하이패스가 잠기고 0원으로 처리되어 들어옵니다.
+    const transportExpense = 
+        getNum('transportFarePersonal') + getNum('transportFuelPersonal') + 
+        getNum('transportParkingPersonal') + getNum('transportHipassPersonal') +
+        getNum('transportFareCorp') + getNum('transportFuelCorp') + 
+        getNum('transportParkingCorp') + getNum('transportHipassCorp');
+
+    // 5. 총 여비 합계 산출
     const totalExpense = dailyExpense + mealExpense + lodgingExpense + transportExpense;
 
-    // HTML 내부 구조 주입 (부모 wrapper를 제거하고 내부 카드들만 바로 주입)
+    // 6. 상단 대시보드 5개 카드 동적 렌더링 (CSS 깨짐 방지 레이아웃 유지)
     previewContainer.innerHTML = `
-        <!-- 일비 -->
+        <!-- 일비 카트 -->
         <div class="cost-card-box" style="padding: 14px 10px;">
             <span class="cost-card-label">일비</span>
             <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${dailyExpense.toLocaleString()}</div>
             <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
         </div>
 
-        <!-- 식비 -->
+        <!-- 식비 카드 -->
         <div class="cost-card-box" style="padding: 14px 10px;">
             <span class="cost-card-label">식비</span>
             <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${mealExpense.toLocaleString()}</div>
             <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
         </div>
 
-        <!-- 숙박비 -->
+        <!-- 숙박비 카드 -->
         <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label">숙박비</span>
             <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${lodgingExpense.toLocaleString()}</div>
-            <div style="height: 18px;"></div> <!-- 높이 정렬용 임시 공간 -->
+            <div style="height: 18px;"></div>
         </div>
 
-        <!-- 교통비 -->
+        <!-- 교통비 카드 -->
         <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label">교통비</span>
             <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${transportExpense.toLocaleString()}</div>
-            <div style="height: 18px;"></div> <!-- 높이 정렬용 임시 공간 -->
+            <div style="height: 18px;"></div>
         </div>
 
-        <!-- 여비합계 -->
+        <!-- 여비합계 카드 -->
         <div class="cost-card-box total-box" style="padding: 14px 10px; background-color: #e2f0fd; border-color: #b3d7fc; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label" style="color: #005691;">여비합계</span>
             <div class="cost-card-value" style="font-size: 18px; font-weight: 700; color: #005691; margin: auto 0;">${totalExpense.toLocaleString()}원</div>
-            <div style="height: 18px;"></div> <!-- 높이 정렬용 임시 공간 -->
+            <div style="height: 18px;"></div>
         </div>
     `;
-
-    // 숙박 조건 경고 알림 노출/숨김 제어
-    const warnRow = document.getElementById('lodgingNightsWarnRow');
-    if (warnRow) {
-        if (lodgingRate > 0 && (lodgingPersonalNights + lodgingCorpNights) === 0) {
-            warnRow.style.display = 'block';
-        } else {
-            warnRow.style.display = 'none';
-        }
-    }
 }
 
 /**
@@ -302,40 +306,40 @@ function addRoster() {
     const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
     const parseKrw = (str) => parseInt(str.replace(/[^0-9]/g, '') || 0, 10);
 
-    // 1. 필수값 검증 (텍스트 필드 + 날짜 필드)
+    // 1. 필수 유효성 체크 강화 (성명, 출장지, 시작일, 종료일 모두 누락 차단)
     const name = getVal('name');
     const destination = getVal('destination');
     const dateStart = getVal('dateStart');
     const dateEnd = getVal('dateEnd');
     
     if (!name || !destination || !dateStart || !dateEnd) {
-        alert("⚠️ 필수 항목 오류\n출장자 성명, 출장지, 출장 시작일 및 종료일을 모두 입력해 주십시오.");
+        alert("⚠️ 필수 항목 입력 누락\n출장자 성명, 출장지, 출장 시작일 및 종료일을 모두 명확히 입력하셔야 명부 등록이 가능합니다.");
         return; 
     }
 
     const period = `${dateStart} ~ ${dateEnd}`;
 
-    // 2. 대시보드 실시간 연동 금액 추출
+    // 2. 대시보드 카드 연동 데이터 매칭
     const cardValues = document.querySelectorAll('.cost-card-value');
-    if(cardValues.length < 5) return alert("대시보드 금액 렌더링이 완료되지 않았습니다.");
+    if(cardValues.length < 5) return alert("대시보드 계산이 완료되지 않았습니다.");
     
     const dailyPersonal = parseKrw(cardValues[0].innerText);
     const dailyCorp = 0;
     const mealPersonal = parseKrw(cardValues[1].innerText);
     const mealCorp = 0;
 
-    // 3. 숙박비 및 교통비 산출
-    const lodgingActual = getNum('lodgingActual');
-    const lodgingPersonal = lodgingActual * getNum('lodgingPersonalNights');
-    const lodgingCorp = lodgingActual * getNum('lodgingCorpNights');
+    // 3. 수정된 독립형 구조에서 직접 숙박비 비용 확보
+    const lodgingPersonal = getNum('lodgingPersonalAmount');
+    const lodgingCorp = getNum('lodgingCorpAmount');
 
+    // 4. 교통비 취합 및 총계 구성
     const transPersonal = getNum('transportFarePersonal') + getNum('transportFuelPersonal') + getNum('transportParkingPersonal') + getNum('transportHipassPersonal');
     const transCorp = getNum('transportFareCorp') + getNum('transportFuelCorp') + getNum('transportParkingCorp') + getNum('transportHipassCorp');
 
     const totalPersonal = dailyPersonal + mealPersonal + lodgingPersonal + transPersonal;
     const totalCorp = dailyCorp + mealCorp + lodgingCorp + transCorp;
 
-    // 4. 테이블 행 주입 (깨짐 방지용 inline-style 너비 고정 규격 적용)
+    // 5. 표에 바인딩
     const tbody = document.getElementById('rosterTbody');
     const row = document.createElement('tr');
     
