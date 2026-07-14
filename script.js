@@ -172,35 +172,20 @@ function updatePreview() {
  * 출장 권역 변경 시 필드 제어 및 데이터 갱신
  */
 function onTripTypeChange() {
-    // 1. 출장 권역 구분 요소를 가져옵니다. (ID가 'tripType'인지 확인하십시오)
     const tripTypeEl = document.getElementById('tripType'); 
-    
-    // 2. 도착 권역 지자체 드롭박스를 감싸고 있는 전체 영역 요소를 가져옵니다. (ID가 'regionField'인지 확인하십시오)
     const regionField = document.getElementById('regionField'); 
 
-    // 요소가 존재하지 않으면 오류를 방지하기 위해 함수를 종료합니다.
     if (!tripTypeEl || !regionField) return;
 
-    // 3. 조건부 렌더링 로직 적용
-    // select 박스의 value가 'outside' 또는 한글 '근무지 외'인지 확인합니다. 
-    // (선생님의 HTML <option value="..."> 값을 정확히 확인하여 일치시켜야 합니다)
-    if (tripTypeEl.value === 'outside' || tripTypeEl.value === '근무지 외') {
-        // 근무지 외를 선택한 경우: 도착 권역 지자체 영역을 표시합니다.
+    if (tripTypeEl.value === '외') {
         regionField.style.display = 'block';
     } else {
-        // 근무지 내 등을 선택한 경우: 도착 권역 지자체 영역을 숨깁니다.
         regionField.style.display = 'none';
         
-        // 데이터 정합성을 위한 추가 조치: 숨겨질 때 혹시 선택되어 있던 권역 값을 초기화합니다.
-        const regionSelect = document.getElementById('region'); // 드롭박스 자체의 ID
+        const regionSelect = document.getElementById('region'); 
         if (regionSelect) {
             regionSelect.value = ''; 
         }
-    }
-
-    // 4. 화면 조건이 변경되었으므로 여비 계산 로직을 다시 업데이트합니다.
-    if (typeof updatePreview === 'function') {
-        updatePreview();
     }
 }
 
