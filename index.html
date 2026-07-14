@@ -337,6 +337,32 @@
           <!-- 실시간 가집계용 모던 대시보드 컴포넌트 -->
           <div class="cost-dashboard-container" id="preview"></div>
 
+        <!-- 명부 테이블 컨테이너 영역 -->
+        <div class="roster-container" style="margin-top: 30px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #edf2f7;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; font-size: 18px; color: #1e293b;">📋 출장자 여비 지급 명부</h3>
+                <div>
+                    <button onclick="addRoster()" class="btn" style="background-color: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">명부에 현재 데이터 추가</button>
+                    <button onclick="generatePDF()" class="btn" style="background-color: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">PDF로 다운로드</button>
+                </div>
+            </div>
+            <table id="rosterTable" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">성명</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">직급</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">출장지</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">출장 기간</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;">여비 총액</th>
+                        <th style="padding: 10px; border: 1px solid #e2e8f0;" class="no-print">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="rosterTbody">
+                    <!-- 명부에 추가된 데이터 행(Row)이 이곳에 누적됩니다. -->
+                </tbody>
+            </table>
+        </div>
+
           <!-- 전용 컨트롤 액션 영역 -->
           <div class="btn-group">
             <button class="btn btn-primary" id="addTripBtn" onclick="addTrip()"><i class="fa-solid fa-plus"></i> 명부 추가</button>
