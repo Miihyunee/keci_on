@@ -23,37 +23,14 @@
   <aside class="sidebar no-print">
     <div class="sidebar-header">
       <div class="sidebar-logo-link">
-        <span style="font-weight: 800; font-size: 18px; letter-spacing: 0.5px; color: #ffffff;">KECI <span style="color:#38bdf8;">ON</span></span>
+        <span style="font-weight: 800; font-size: 25px; letter-spacing: 0.5px; color: #ffffff;">KECI ON</span>
       </div>
     </div>
     
     <div class="user-profile-box">
       <div class="user-avatar-mock"><i class="fa-solid fa-user-tie"></i></div>
-      <div class="profile-name">홍길동 사원</div>
-      <div class="profile-dept">대외환경협력처</div>
+      <div class="profile-name">한국환경보전원</div>
     </div>
-
-    <ul class="nav-sidebar">
-      <li class="nav-item-header">메뉴 그룹</li>
-      <li class="nav-item active">
-        <a href="#" class="nav-link">
-          <i class="fa-solid fa-calculator"></i>
-          <span>여비 계산기</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fa-solid fa-file-signature"></i>
-          <span>출장복명서 작성</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="fa-solid fa-gear"></i>
-          <span>설정 관리</span>
-        </a>
-      </li>
-    </ul>
   </aside>
 
   <!-- 메인 콘텐츠 랩 -->
@@ -248,36 +225,34 @@
             </div>
           </label>
         
-          <!-- 3번: 개인/법인 정렬 및 박, 원 입력칸 분리 레이아웃 -->
-          <div class="split-inputs" style="display: flex; flex-direction: column; gap: 8px;">
-            
-            <!-- 개인 행 -->
-            <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
-              <span class="split-label personal-label" style="width: 40px;">개인</span>
-              <div class="input-wrap">
-                <input type="number" id="lodgingPersonalNights" value="0" min="0" max="364" oninput="updatePreview()" style="width: 50px; text-align: center;">
-                <span class="unit">박</span>
+            <!-- 기존 #lodgingField 내부의 split-inputs 영역을 아래 구조로 최종 업데이트합니다 -->
+            <div class="split-inputs" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- 개인 행 -->
+              <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
+                <span class="split-label personal-label" style="width: 40px;">개인</span>
+                <div class="input-wrap">
+                  <input type="number" id="lodgingPersonalNights" value="0" min="0" max="364" onfocus="onDateChange()" oninput="onDateChange()" style="width: 50px; text-align: center;">
+                  <span class="unit">박</span>
+                </div>
+                <div class="input-wrap">
+                  <input type="number" id="lodgingPersonalAmount" value="0" min="0" step="1000" onfocus="onDateChange()" oninput="onDateChange()" style="width: 120px; text-align: right;">
+                  <span class="unit">원</span>
+                </div>
               </div>
-              <div class="input-wrap">
-                <input type="number" id="lodgingPersonalAmount" value="0" min="0" step="1000" oninput="updatePreview()" style="width: 120px; text-align: right;">
-                <span class="unit">원</span>
+              
+              <!-- 법인 행 -->
+              <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
+                <span class="split-label corp-label" style="width: 40px;">법인</span>
+                <div class="input-wrap">
+                  <input type="number" id="lodgingCorpNights" value="0" min="0" max="364" onfocus="onDateChange()" oninput="onDateChange()" style="width: 50px; text-align: center;">
+                  <span class="unit">박</span>
+                </div>
+                <div class="input-wrap">
+                  <input type="number" id="lodgingCorpAmount" value="0" min="0" step="1000" onfocus="onDateChange()" oninput="onDateChange()" style="width: 120px; text-align: right;">
+                  <span class="unit">원</span>
+                </div>
               </div>
             </div>
-            
-            <!-- 법인 행 -->
-            <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
-              <span class="split-label corp-label" style="width: 40px;">법인</span>
-              <div class="input-wrap">
-                <input type="number" id="lodgingCorpNights" value="0" min="0" max="364" oninput="updatePreview()" style="width: 50px; text-align: center;">
-                <span class="unit">박</span>
-              </div>
-              <div class="input-wrap">
-                <input type="number" id="lodgingCorpAmount" value="0" min="0" step="1000" oninput="updatePreview()" style="width: 120px; text-align: right;">
-                <span class="unit">원</span>
-              </div>
-            </div>
-        
-          </div>
         
           <!-- 2번: 값이 공백이나 0이 될 때 잔상을 완전히 지워주기 위한 실시간 가이드 텍스트 노드 -->
           <div id="lodgingPreviewText" style="margin-top: 6px; font-size: 13px; color: #0284c7; font-weight: 500; min-height: 18px;"></div>
