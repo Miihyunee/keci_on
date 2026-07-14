@@ -292,3 +292,48 @@ function loadSampleData() {
         console.error("샘플 로드 중 오류 발생:", error);
     }
 }
+/**
+ * 현재 입력 폼과 계산된 대시보드 데이터를 명부 표에 추가합니다.
+ */
+function addRoster() {
+    // 1. 현재 폼에 입력된 주요 데이터 추출
+    const nameEl = document.getElementById('name');
+    const roleEl = document.getElementById('role');
+    const destEl = document.getElementById('destination');
+    const startEl = document.getElementById('dateStart');
+    const endEl = document.getElementById('dateEnd');
+
+    const name = nameEl && nameEl.value ? nameEl.value : '미입력';
+    const role = roleEl && roleEl.options[roleEl.selectedIndex] ? roleEl.options[roleEl.selectedIndex].text : '-';
+    const destination = destEl && destEl.value ? destEl.value : '-';
+    
+    const dateStart = startEl && startEl.value ? startEl.value : '-';
+    const dateEnd = endEl && endEl.value ? endEl.value : '-';
+    const period = `${dateStart} ~ ${dateEnd}`;
+
+    // 2. 화면에 계산되어 렌더링된 '여비합계' 추출
+    const totalBox = document.querySelector('.total-box .cost-card-value');
+    const totalAmount = totalBox ? totalBox.innerText : '0원';
+
+    // 3. 데이터를 삽입할 테이블 본문(tbody) 탐색
+    const tbody = document.getElementById('rosterTbody');
+    if (!tbody) {
+        console.error("명부 테이블 영역을 찾을 수 없습니다.");
+        return;
+    }
+
+    // 4. 새로운 테이블 행(tr) 요소 생성 및 삽입
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">${name}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">${role}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">${destination}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;">${period}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: 700; color: #005691;">${totalAmount}</td>
+        <td style="padding: 10px; border: 1px solid #e2e8f0;" class="no-print">
+            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">삭제</button>
+        </td>
+    `;
+    
+    tbody.appendChild(row);
+}
