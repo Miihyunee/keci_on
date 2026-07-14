@@ -3,55 +3,39 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 초기 실행 및 날짜 유효성 체크
-    onDateChange();
-    updatePreview();
+    // 1. 초기 실행 및 날짜 / 교통수단 입력 제한 유효성 체크
+    if (typeof onDateChange === 'function') onDateChange();
+    if (typeof onVehicleChange === 'function') onVehicleChange();
+    if (typeof updatePreview === 'function') updatePreview();
 });
 
 /**
- * [버그 수정 1] 날짜 조건 변경 제어 및 오류 검증 함수
+ * 날짜 변경 시 숙박비 입력 제어 로직
  */
 function onDateChange() {
-    const startDateInput = document.getElementById('dateStart');
-    const endDateInput = document.getElementById('dateEnd');
-    const dateInfo = document.getElementById('dateInfo');
+    const startEl = document.getElementById('dateStart');
+    const endEl = document.getElementById('dateEnd');
+    const lodgingActual = document.getElementById('lodgingActual');
+    const lodgingPersonalNights = document.getElementById('lodgingPersonalNights');
+    const lodgingCorpNights = document.getElementById('lodgingCorpNights');
 
-    if (!startDateInput || !endDateInput) return;
+    if (!startEl || !endEl) return;
 
-    const startVal = startDateInput.value;
-    const endVal = endDateInput.value;
-
-    if (startVal) {
-        // 종료일 달력 선택 범위를 시작일 이후로 제한 (이전 날짜 비활성화)
-        endDateInput.min = startVal;
-
-        // 종료일이 시작일보다 과거라면 종료일자를 시작일자로 강제 동기화
-        if (endVal && endVal < startVal) {
-            endDateInput.value = startVal;
-        }
+    // 당일 출장 여부 확인 (시작일과 종료일이 같으면 당일 출장)
+    if (startEl.value && endEl.value && startEl.value === endEl.value) {
+        // 숙박비 관련 입력창 모두 비활성화 및 0 초기화
+        if (lodgingActual) { lodgingActual.value = '0'; lodgingActual.disabled = true; }
+        if (lodgingPersonalNights) { lodgingPersonalNights.value = '0'; lodgingPersonalNights.disabled = true; }
+        if (lodgingCorpNights) { lodgingCorpNights.value = '0'; lodgingCorpNights.disabled = true; }
     } else {
-        endDateInput.removeAttribute('min');
+        // 1박 이상일 경우 입력창 활성화
+        if (lodgingActual) lodgingActual.disabled = false;
+        if (lodgingPersonalNights) lodgingPersonalNights.disabled = false;
+        if (lodgingCorpNights) lodgingCorpNights.disabled = false;
     }
 
-    // 일수 정보 업데이트 및 텍스트 표시
-    if (startVal && endDateInput.value) {
-        const startDate = new Date(startVal);
-        const endDate = new Date(endDateInput.value);
-        const diffTime = endDate - startDate;
-        const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-        if (totalDays > 0) {
-            dateInfo.innerHTML = `<strong>${totalDays}일간</strong> (당일 포함)`;
-            dateInfo.style.color = "#0056b3";
-        } else {
-            dateInfo.textContent = "";
-        }
-    } else {
-        dateInfo.textContent = "";
-    }
-
-    // 변경된 일수 값을 기반으로 여비 재조정 렌더링
-    updatePreview();
+    // 기존에 존재하던 금액 재계산 함수 호출
+    if (typeof updatePreview === 'function') updatePreview();
 }
 
 /**
@@ -184,18 +168,36 @@ function onTripTypeChange() {
     }
 }
 
+/**
+ * 교통수단 변경 시 주유비, 주차비, 하이패스 입력 제어 로직
+ */
 function onVehicleChange() {
-    const vehicle = document.getElementById('vehicle').value;
-    const vehicleDaysField = document.getElementById('vehicleDaysField');
-    const vehicleHint = document.getElementById('vehicleHint');
+    const vehicleEl = document.getElementById('vehicle');
+    if (!vehicleEl) return;
 
-    if (vehicle === 'company') {
-        if (vehicleDaysField) vehicleDaysField.classList.remove('hidden');
-        if (vehicleHint) vehicleHint.textContent = '공용차량 이용 시 일비 50% 감액 대상';
-    } else {
-        if (vehicleDaysField) vehicleDaysField.classList.add('hidden');
-        if (vehicleHint) vehicleHint.textContent = '';
+    // 자동차 관련 필드 목록
+    const carFields = [
+        'transportFuelPersonal', 'transportFuelCorp',
+        'transportParkingPersonal', 'transportParkingCorp',
+        'transportHipassPersonal', 'transportHipassCorp'
+    ];
+
+    if (vehicleEl.value === 'public') { // 일반 대중교통 선택 시
+        carFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = '0';      // 값 0으로 초기화
+                el.disabled = true;  // 입력 불가 처리
+            }
+        });
+    } else { // 자가용/업무용 차량 등 선택 시
+        carFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.disabled = false; // 입력 활성화
+        });
     }
+
+    if (typeof updatePreview === 'function') updatePreview();
 }
 
 function onNumberInput(input) {
@@ -293,58 +295,57 @@ function loadSampleData() {
     }
 }
 /**
- * 필수값 검증 및 개인/법인 구분 데이터를 명부 표에 추가합니다.
+ * 날짜 필수값 검증이 추가된 명부 데이터 추가 함수
  */
 function addRoster() {
-    // 공백 제거(trim)를 포함하여 안전하게 값을 가져오는 함수
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
     const parseKrw = (str) => parseInt(str.replace(/[^0-9]/g, '') || 0, 10);
 
-    // 1. 필수 텍스트 항목 검증
+    // 1. 필수값 검증 (텍스트 필드 + 날짜 필드)
     const name = getVal('name');
     const destination = getVal('destination');
+    const dateStart = getVal('dateStart');
+    const dateEnd = getVal('dateEnd');
     
-    if (!name || !destination) {
-        alert("출장자 성명 및 출장지 등 필수 항목을 반드시 입력해 주십시오.");
-        return; // 조건을 만족하지 않으면 아래 로직을 실행하지 않고 함수 종료
+    if (!name || !destination || !dateStart || !dateEnd) {
+        alert("⚠️ 필수 항목 오류\n출장자 성명, 출장지, 출장 시작일 및 종료일을 모두 입력해 주십시오.");
+        return; 
     }
 
-    const period = `${getVal('dateStart')} ~ ${getVal('dateEnd')}`;
+    const period = `${dateStart} ~ ${dateEnd}`;
 
-    // 2. 일비/식비 추출
+    // 2. 대시보드 실시간 연동 금액 추출
     const cardValues = document.querySelectorAll('.cost-card-value');
-    if(cardValues.length < 5) return alert("대시보드 렌더링이 완료되지 않았습니다.");
+    if(cardValues.length < 5) return alert("대시보드 금액 렌더링이 완료되지 않았습니다.");
     
     const dailyPersonal = parseKrw(cardValues[0].innerText);
     const dailyCorp = 0;
     const mealPersonal = parseKrw(cardValues[1].innerText);
     const mealCorp = 0;
 
-    // 3. 숙박비 정밀 추출
+    // 3. 숙박비 및 교통비 산출
     const lodgingActual = getNum('lodgingActual');
     const lodgingPersonal = lodgingActual * getNum('lodgingPersonalNights');
     const lodgingCorp = lodgingActual * getNum('lodgingCorpNights');
 
-    // 4. 교통비 정밀 추출
     const transPersonal = getNum('transportFarePersonal') + getNum('transportFuelPersonal') + getNum('transportParkingPersonal') + getNum('transportHipassPersonal');
     const transCorp = getNum('transportFareCorp') + getNum('transportFuelCorp') + getNum('transportParkingCorp') + getNum('transportHipassCorp');
 
-    // 5. 총액 계산
     const totalPersonal = dailyPersonal + mealPersonal + lodgingPersonal + transPersonal;
     const totalCorp = dailyCorp + mealCorp + lodgingCorp + transCorp;
 
-    // 6. 테이블 행 생성 및 주입
+    // 4. 테이블 행 주입 (깨짐 방지용 inline-style 너비 고정 규격 적용)
     const tbody = document.getElementById('rosterTbody');
     const row = document.createElement('tr');
     
-    const tdStyle = "padding: 8px; border: 1px solid #e2e8f0; text-align: right;";
-    const centerStyle = "padding: 8px; border: 1px solid #e2e8f0; text-align: center;";
+    const tdStyle = "padding: 6px 4px; border: 1px solid #cbd5e1; text-align: right; width: 75px; white-space: nowrap;";
+    const centerStyle = "padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 80px;";
     
     row.innerHTML = `
         <td style="${centerStyle}">${name}</td>
         <td style="${centerStyle}">${destination}</td>
-        <td style="${centerStyle} font-size: 11px;">${period}</td>
+        <td style="padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 140px; font-size: 11px;">${period}</td>
         <td style="${tdStyle}">${dailyPersonal.toLocaleString()}</td>
         <td style="${tdStyle} color: #94a3b8;">${dailyCorp.toLocaleString()}</td>
         <td style="${tdStyle}">${mealPersonal.toLocaleString()}</td>
@@ -355,57 +356,60 @@ function addRoster() {
         <td style="${tdStyle} color: #94a3b8;">${transCorp.toLocaleString()}</td>
         <td style="${tdStyle} font-weight: 700; color: #0284c7; background-color:#f0f9ff;">${totalPersonal.toLocaleString()}</td>
         <td style="${tdStyle} font-weight: 700; color: #16a34a; background-color:#f0fdf4;">${totalCorp.toLocaleString()}</td>
-        <td style="${centerStyle}" class="no-print">
-            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">삭제</button>
+        <td style="padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 50px;" class="no-print">
+            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 11px;">삭제</button>
         </td>
     `;
     tbody.appendChild(row);
 }
 /**
- * 왜곡 방지 및 규정 텍스트가 포함된 PDF 출력 로직
+ * 표 깨짐이 완전 방지된 고해상도 PDF 다운로드 함수
  */
 function generatePDF() {
     const target = document.getElementById('pdfTargetWrapper');
     if (!target) return;
 
-    // 1. 캡처 전용 환경 구축 (텍스트 활성화 및 관리 버튼 숨김)
+    // 1. 문서화 전용 데코레이션 활성화
     document.getElementById('pdfHeader').style.display = 'block';
     document.getElementById('pdfFooter').style.display = 'block';
     
     const noPrintElements = target.querySelectorAll('.no-print');
     noPrintElements.forEach(el => el.style.display = 'none');
 
-    // 2. 표 깨짐 방지 장치 (오버플로우 해제 및 너비 강제 확장)
     const scrollWrapper = document.getElementById('tableScrollWrapper');
     const originalOverflow = scrollWrapper.style.overflowX;
-    scrollWrapper.style.overflowX = 'visible'; // 스크롤 바를 없애고 전체 표를 펼침
-    
-    // 3. 엔진 옵션 설정 (A4 가로 방향 여백 확보 및 해상도 조정)
+    scrollWrapper.style.overflowX = 'visible'; 
+
+    // 2. 가로 픽셀을 물리적으로 고정하여 html2canvas가 압축 렌더링하는 현상 원천 차단
+    const originalWidth = target.style.width;
+    target.style.width = '1050px'; 
+
     const opt = {
-        margin:       [15, 10, 15, 10], // 상단, 우측, 하단, 좌측 여백(mm)
+        margin:       [12, 10, 12, 10],
         filename:     '출장별첨_여비지급명부.pdf',
         image:        { type: 'jpeg', quality: 1.0 },
         html2canvas:  { 
-            scale: 2, 
+            scale: 2.5, // 화질 선명도 상향
             useCORS: true, 
             scrollY: 0,
-            windowWidth: 1200 // 캔버스 캡처용 가상 윈도우 너비를 충분히 넓게 설정하여 왜곡 원천 차단
+            windowWidth: 1200
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
-    // 4. 비동기 렌더링 및 종료 후 원상 복구
+    // 3. 파일 배출 후 환경 복원
     html2pdf().set(opt).from(target).save().then(() => {
         document.getElementById('pdfHeader').style.display = 'none';
         document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
         scrollWrapper.style.overflowX = originalOverflow;
+        target.style.width = originalWidth;
     }).catch(err => {
-        console.error("PDF 생성 에러:", err);
-        // 에러 발생 시에도 화면 원상 복구 보장
+        console.error("PDF 변환 오류 수습:", err);
         document.getElementById('pdfHeader').style.display = 'none';
         document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
         scrollWrapper.style.overflowX = originalOverflow;
+        target.style.width = originalWidth;
     });
 }
