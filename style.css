@@ -754,9 +754,80 @@ input[type="number"] {
 /* 4. 숙박비 상한 기준 안내 툴팁 디자인 정의 */
 .tooltip-container {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     cursor: help;
 }
+/* 마우스 오버 시 절대 좌표로 띄우고 다른 레이어 위로 배치 */
 .tooltip-container:hover .tooltip-box {
     display: block !important;
+    position: absolute;
+    top: 24px;
+    left: 0;
+    z-index: 9999 !important;
+    background: #ffffff !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* 상위 박스 hidden 속성 무력화 */
+.form-field, .input-wrap {
+    overflow: visible !important;
+}
+
+/* ==========================================
+   3a. 도착권역 지자체 입력칸 수평 줄맞춤 교정
+   ========================================== */
+#locationSelectArea, 
+.destination-container,
+.arrival-group-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important; /* 아래로 떨어지는 것 방지 */
+    width: 100% ;
+}
+
+/* ==========================================
+   3b. PDF 인쇄 잘림 방지 표준 규격 설정
+   ========================================== */
+@media print {
+    /* 브라우저 스크롤 하단 가림막 파괴 및 전면 초기화 */
+    html, body {
+        width: 210mm; /* A4 가로/세로 규격 강제 매칭 */
+        height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 화면 분할 레이아웃이 있을 경우 인쇄 시 무력화 */
+    .app-container, .main-wrapper, main, .content-body {
+        display: block !important;
+        position: relative !important;
+        overflow: visible !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10mm !important; /* 사방 여백 확보 */
+    }
+
+    /* 출력할 데이터 테이블 잘림 방지 */
+    table {
+        width: 100% !important;
+        table-layout: auto !important;
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid !important; /* 행 중간이 페이지 경계에서 잘리는 현상 방지 */
+        page-break-after: auto !important;
+    }
+
+    /* 사이드바 등 불필요한 요소 제거 */
+    .no-print, button, .sidebar, header, nav, .filter-box {
+        display: none !important;
+    }
 }
