@@ -339,49 +339,69 @@
           <!-- 실시간 가집계용 모던 대시보드 컴포넌트 -->
           <div class="cost-dashboard-container" id="preview"></div>
 
-        <!-- 명부 테이블 컨테이너 영역 (새로 교체할 코드) -->
-<div class="roster-container" id="rosterContainer" style="margin-top: 30px; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #edf2f7;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;" class="no-print">
-        <h3 style="margin: 0; font-size: 18px; color: #1e293b;">📋 출장자 여비 지급 명부</h3>
-        <div>
-            <button onclick="addRoster()" class="btn" style="background-color: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">명부에 데이터 추가</button>
-            <button onclick="generatePDF()" class="btn" style="background-color: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">PDF 파일 다운로드</button>
+       <!-- 명부 테이블 컨테이너 영역 -->
+        <div class="roster-container" style="margin-top: 30px; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #edf2f7;">
+            
+            <!-- 1. 버튼 영역 (PDF 대상에서 완전히 분리하여 이동 현상 차단) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; font-size: 18px; color: #1e293b;">📋 출장자 여비 지급 명부</h3>
+                <div>
+                    <button onclick="addRoster()" class="btn" style="background-color: #0ea5e9; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">명부에 데이터 추가</button>
+                    <button onclick="generatePDF()" class="btn" style="background-color: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">PDF 파일 다운로드</button>
+                </div>
+            </div>
+            
+            <!-- 2. 실제 PDF 캡처 대상 영역 -->
+            <div id="pdfTargetWrapper" style="background: #ffffff; padding: 10px;">
+                
+                <!-- PDF 전용 상단 텍스트 (평소 숨김) -->
+                <div id="pdfHeader" style="display: none; font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: left; color: #000;">
+                    □ 출장별첨
+                </div>
+        
+                <div id="tableScrollWrapper" style="overflow-x: auto;">
+                    <table id="rosterTable" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 900px;">
+                        <thead>
+                            <tr style="background-color: #f1f5f9; border-top: 2px solid #94a3b8; border-bottom: 1px solid #cbd5e1;">
+                                <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">성명</th>
+                                <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">출장지</th>
+                                <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">기간</th>
+                                <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">일비</th>
+                                <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">식비</th>
+                                <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fce7f3;">숙박비</th>
+                                <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fef3c7;">교통비</th>
+                                <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #dcfce7;">총액</th>
+                                <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;" class="no-print">관리</th>
+                            </tr>
+                            <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #0369a1;">개인</th>
+                                <th style="padding: 4px; border: 1px solid #e2e8f0; color: #047857;">법인</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTbody">
+                            <!-- 데이터 누적 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- PDF 전용 하단 텍스트 (평소 숨김) -->
+                <div id="pdfFooter" style="display: none; font-size: 11px; line-height: 1.6; text-align: left; margin-top: 20px; color: #333; font-weight: 500;">
+                    * 여비규정 제14조(일비·숙박비·식비의 지급) 및 제 16조(근무지 내 국내 출장 시의 여비) 준용<br>
+                    &nbsp;&nbsp;- (일비) 차량관리규정 제2조제2호의 업무용 차량 또는 자가용 차량을 이용한 경우에는 해당 여행일에 대하여 일비의 2분의 1을 지급<br>
+                    &nbsp;&nbsp;- (근무지 내 출장 - 4시간 이상) 일비 2만원 / 식비 미지급<br>
+                    &nbsp;&nbsp;- (근무지 외 출장 – 4시간 이상) 일비 2.5만원 / 식비 2.5만원
+                </div>
+                
+            </div>
         </div>
-    </div>
-    
-    <div style="overflow-x: auto;">
-        <table id="rosterTable" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 900px;">
-            <thead>
-                <tr style="background-color: #f1f5f9; border-top: 2px solid #94a3b8; border-bottom: 1px solid #cbd5e1;">
-                    <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">성명</th>
-                    <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">출장지</th>
-                    <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">기간</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">일비</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">식비</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fce7f3;">숙박비</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fef3c7;">교통비</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #dcfce7;">총액</th>
-                    <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;" class="no-print">관리</th>
-                </tr>
-                <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #0369a1;">개인</th>
-                    <th style="padding: 4px; border: 1px solid #e2e8f0; color: #047857;">법인</th>
-                </tr>
-            </thead>
-            <tbody id="rosterTbody">
-                <!-- 데이터 누적 영역 -->
-            </tbody>
-        </table>
-    </div>
-</div>
 
           <!-- 전용 컨트롤 액션 영역 -->
           <div class="btn-group">
