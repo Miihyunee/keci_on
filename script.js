@@ -293,75 +293,103 @@ function loadSampleData() {
     }
 }
 /**
- * 현재 입력 폼과 계산된 대시보드 데이터를 명부 표에 추가합니다.
+ * 개인/법인 구분 데이터를 정밀 추출하여 명부 표에 추가합니다.
  */
 function addRoster() {
-    // 1. 현재 폼에 입력된 주요 데이터 추출
-    const nameEl = document.getElementById('name');
-    const roleEl = document.getElementById('role');
-    const destEl = document.getElementById('destination');
-    const startEl = document.getElementById('dateStart');
-    const endEl = document.getElementById('dateEnd');
+    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
+    const parseKrw = (str) => parseInt(str.replace(/[^0-9]/g, '') || 0, 10);
 
-    const name = nameEl && nameEl.value ? nameEl.value : '미입력';
-    const role = roleEl && roleEl.options[roleEl.selectedIndex] ? roleEl.options[roleEl.selectedIndex].text : '-';
-    const destination = destEl && destEl.value ? destEl.value : '-';
+    // 1. 기본 인적 사항 추출
+    const name = getVal('name') || '미입력';
+    const destination = getVal('destination') || '-';
+    const period = `${getVal('dateStart')} ~ ${getVal('dateEnd')}`;
+
+    // 2. 일비/식비 추출 (대시보드 카드에서 추출, 규정상 전액 개인 지급으로 간주)
+    const cardValues = document.querySelectorAll('.cost-card-value');
+    if(cardValues.length < 5) return alert("대시보드 렌더링이 완료되지 않았습니다.");
     
-    const dateStart = startEl && startEl.value ? startEl.value : '-';
-    const dateEnd = endEl && endEl.value ? endEl.value : '-';
-    const period = `${dateStart} ~ ${dateEnd}`;
+    const dailyPersonal = parseKrw(cardValues[0].innerText);
+    const dailyCorp = 0;
+    const mealPersonal = parseKrw(cardValues[1].innerText);
+    const mealCorp = 0;
 
-    // 2. 화면에 계산되어 렌더링된 '여비합계' 추출
-    const totalBox = document.querySelector('.total-box .cost-card-value');
-    const totalAmount = totalBox ? totalBox.innerText : '0원';
+    // 3. 숙박비 정밀 추출 (실비 x 숙박 일수 기반)
+    const lodgingActual = getNum('lodgingActual');
+    const lodgingPersonal = lodgingActual * getNum('lodgingPersonalNights');
+    const lodgingCorp = lodgingActual * getNum('lodgingCorpNights');
 
-    // 3. 데이터를 삽입할 테이블 본문(tbody) 탐색
+    // 4. 교통비 정밀 추출 (입력창 항목별 합산)
+    const transPersonal = getNum('transportFarePersonal') + getNum('transportFuelPersonal') + getNum('transportParkingPersonal') + getNum('transportHipassPersonal');
+    const transCorp = getNum('transportFareCorp') + getNum('transportFuelCorp') + getNum('transportParkingCorp') + getNum('transportHipassCorp');
+
+    // 5. 총액 계산
+    const totalPersonal = dailyPersonal + mealPersonal + lodgingPersonal + transPersonal;
+    const totalCorp = dailyCorp + mealCorp + lodgingCorp + transCorp;
+
+    // 6. 테이블 행 생성 및 주입
     const tbody = document.getElementById('rosterTbody');
-    if (!tbody) {
-        console.error("명부 테이블 영역을 찾을 수 없습니다.");
-        return;
-    }
-
-    // 4. 새로운 테이블 행(tr) 요소 생성 및 삽입
     const row = document.createElement('tr');
+    
+    const tdStyle = "padding: 8px; border: 1px solid #e2e8f0; text-align: right;";
+    const centerStyle = "padding: 8px; border: 1px solid #e2e8f0; text-align: center;";
+    
     row.innerHTML = `
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">${name}</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">${role}</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">${destination}</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;">${period}</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: 700; color: #005691;">${totalAmount}</td>
-        <td style="padding: 10px; border: 1px solid #e2e8f0;" class="no-print">
-            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">삭제</button>
+        <td style="${centerStyle}">${name}</td>
+        <td style="${centerStyle}">${destination}</td>
+        <td style="${centerStyle} font-size: 11px;">${period}</td>
+        <td style="${tdStyle}">${dailyPersonal.toLocaleString()}</td>
+        <td style="${tdStyle} color: #94a3b8;">${dailyCorp.toLocaleString()}</td>
+        <td style="${tdStyle}">${mealPersonal.toLocaleString()}</td>
+        <td style="${tdStyle} color: #94a3b8;">${mealCorp.toLocaleString()}</td>
+        <td style="${tdStyle}">${lodgingPersonal.toLocaleString()}</td>
+        <td style="${tdStyle} color: #94a3b8;">${lodgingCorp.toLocaleString()}</td>
+        <td style="${tdStyle}">${transPersonal.toLocaleString()}</td>
+        <td style="${tdStyle} color: #94a3b8;">${transCorp.toLocaleString()}</td>
+        <td style="${tdStyle} font-weight: 700; color: #0284c7; background-color:#f0f9ff;">${totalPersonal.toLocaleString()}</td>
+        <td style="${tdStyle} font-weight: 700; color: #16a34a; background-color:#f0fdf4;">${totalCorp.toLocaleString()}</td>
+        <td style="${centerStyle}" class="no-print">
+            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">삭제</button>
         </td>
     `;
-    
     tbody.appendChild(row);
 }
 /**
  * 명부 테이블 영역(.roster-container)을 PDF 파일로 변환합니다.
  */
 function generatePDF() {
-    const element = document.querySelector('.roster-container');
-    if (!element) {
-        console.error("PDF로 변환할 대상을 찾을 수 없습니다.");
-        return;
-    }
+    const element = document.getElementById('rosterContainer');
+    if (!element) return;
 
-    // PDF 출력 시 불필요한 요소(관리 버튼 등) 임시 숨김 처리
+    // 1. PDF 출력 전용 상태로 DOM 임시 변경
     const noPrintElements = element.querySelectorAll('.no-print');
     noPrintElements.forEach(el => el.style.display = 'none');
+    
+    // 배경색 강제 지정 (투명 배경으로 인한 캡처 오류 방지)
+    const originalBackground = element.style.background;
+    element.style.background = '#ffffff';
 
-    // PDF 변환 옵션 설정
+    // 2. 엔진 옵션 최적화 (스크롤 위치 고정, 크기 보정)
     const opt = {
         margin:       10,
         filename:     '출장자_여비지급명부.pdf',
         image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // 표 특성상 가로(landscape) 방향 권장
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            scrollY: 0, // 💡 핵심: 캡처 시 스크롤 위치를 0으로 강제 고정하여 빈 영역 캡처 방지
+            backgroundColor: '#ffffff'
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
-    // 비동기 PDF 생성 후 숨겼던 요소 복구
+    // 3. PDF 변환 및 원래 상태 복구
     html2pdf().set(opt).from(element).save().then(() => {
         noPrintElements.forEach(el => el.style.display = '');
+        element.style.background = originalBackground;
+    }).catch(err => {
+        console.error("PDF 생성 중 시스템 오류 발생:", err);
+        noPrintElements.forEach(el => el.style.display = '');
+        element.style.background = originalBackground;
     });
 }
