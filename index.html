@@ -90,13 +90,27 @@
                 <div class="field-sub"><span class="error-msg">출장자 성명을 기재해 주십시오.</span></div>
               </div>
               <div class="form-field">
-                <label for="jobTitle">직위</label>
-                <input type="text" id="jobTitle" placeholder="예: 주임">
+                <label for="role">직급</label>
+                <select id="role" onchange="updatePreview()">
+                  <option value="1">원장</option>
+                  <option value="2">1급</option>
+                  <option value="3">2급</option>
+                  <option value="4">2급(대우)</option>
+                  <option value="5">3급</option>
+                  <option value="6">3급(대우)</option>
+                  <option value="7">4급</option>
+                  <option value="8">4급(대우)</option>
+                  <option value="9">5급</option>
+                  <option value="10">6급</option>
+                  <option value="11" selected>7급</option>
+                  <option value="12">기능직</option>
+                  <option value="13">기간제</option>
+                </select>
                 <div class="field-sub"></div>
               </div>
               <div class="form-field">
                 <label for="destination">출장지</label>
-                <input type="text" id="destination" placeholder="예: 강남역 회의실">
+                <input type="text" id="destination" placeholder="예: 정부세종청사">
                 <div class="field-sub"><span class="error-msg">출장지를 정확히 기재해 주십시오.</span></div>
               </div>
               <div class="form-field span-2">
@@ -111,12 +125,7 @@
               </div>
               <div class="form-field span-2">
                 <label for="purpose">출장 용무</label>
-                <input type="text" id="purpose" placeholder="예: 국외 환경기술 지원 회의 참석">
-                <div class="field-sub"></div>
-              </div>
-              <div class="form-field">
-                <label for="attachment">별첨 구분 (출력용)</label>
-                <input type="text" id="attachment" placeholder="예: 붙임1">
+                <input type="text" id="purpose" placeholder="예: 기후부 업무보고">
                 <div class="field-sub"></div>
               </div>
             </div>
