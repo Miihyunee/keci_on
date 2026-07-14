@@ -71,6 +71,22 @@ function loadSampleData() {
  * 대시보드 상단 카드 및 숙박비 가이드 문구를 실시간으로 업데이트하는 핵심 함수
  */
 function updatePreview() {
+    const startVal = document.getElementById('dateStart').value; // yyyy-mm-dd
+    const endVal = document.getElementById('dateEnd').value;     // yyyy-mm-dd
+
+    if (startVal && endVal) {
+        // 하이픈(-)을 슬래시(/)로 바꾸어 무조건 yyyy/mm/dd 구조로 통일
+        const formattedStart = startVal.replace(/-/g, '/');
+        const formattedEnd = endVal.replace(/-/g, '/');
+        
+        // [수정] 기존에 dd/mm/yyyy 형태로 쪼개서 재조합하던 코드가 있다면 과감히 지우고 아래 라인으로 대체합니다.
+        const periodText = `${formattedStart} ~ ${formattedEnd}`;
+        
+        // 프리뷰 화면이나 텍스트 노드에 반영하는 엘리먼트 ID에 맞게 바인딩
+        const previewEl = document.getElementById('periodPreview');
+        if (previewEl) previewEl.innerText = periodText;
+    }
+    
     // 안전하게 DOM 요소를 찾아 값을 가져오는 헬퍼 함수들
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const getNum = (id) => { const el = document.getElementById(id); return el ? parseInt(el.value.replace(/,/g, '') || 0, 10) : 0; };
