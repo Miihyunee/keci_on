@@ -427,10 +427,7 @@ input[type="number"] {
         table-layout: fixed !important;
     }
 }
-/* 숨겨진 필드 강제 표시 (기존의 display: none을 덮어씁니다) */
-.hideable {
-    display: block !important;
-}
+/* 수정됨: 숨겨진 필드 강제 표시 방해 요소(display: block !important) 삭제 및 주석 처리됨 */
 
 /* 날짜 입력칸 브라우저 기본 형식 이슈 보완 */
 input[type="date"] {
