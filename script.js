@@ -3,21 +3,26 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 강제 노출(display: block) 로직 전면 삭제 완료
-
-    // 2. 페이지 로드 시점의 기본 선택 값에 맞추어 UI를 즉시 동기화합니다.
-    // 각 함수가 스스로 논리 조건을 판단하여 필요한 입력 박스만 노출시킵니다.
+    // 페이지 로드 시점의 기본 선택 값에 맞추어 UI를 즉시 동기화합니다.
     onDateChange();
     onVehicleChange();
     onTripTypeChange();
 });
 
 /**
- * 당일 출장 시 숙박비 제한 및 날짜 변경 처리 핵심 로직
+ * 날짜 변경 처리 핵심 로직 및 유효성 검사 추가 반영
  */
 function onDateChange() {
     const startEl = document.getElementById('dateStart');
     const endEl = document.getElementById('dateEnd');
+    
+    // 수정됨: 역방향 날짜 선택에 대한 유효성 방어 로직 추가
+    if (startEl && endEl && startEl.value && endEl.value) {
+        if (new Date(endEl.value) < new Date(startEl.value)) {
+            alert("종료일은 시작일보다 빠를 수 없습니다. 올바른 일정을 선택해 주십시오.");
+            endEl.value = startEl.value; // 강제 보정
+        }
+    }
     
     const lpNights = document.getElementById('lodgingPersonalNights');
     const lpAmount = document.getElementById('lodgingPersonalAmount');
@@ -34,7 +39,7 @@ function onDateChange() {
                         (lcNights && parseInt(lcNights.value || 0, 10) > 0);
         
         if (hasValue) {
-            alert("[1박 미만의 출장의 경우 숙박비는 입력할 수 없습니다.]");
+            alert("[1박 미만의 당일 출장의 경우 숙박비는 입력할 수 없습니다.]");
         }
         
         if (lpNights) lpNights.value = '0';
@@ -169,29 +174,22 @@ function updatePreview() {
  * 출장 권역 변경 시 필드 제어 및 데이터 갱신
  */
 function onTripTypeChange() {
-    // 1. 제어할 대상 요소의 DOM 객체를 호출합니다.
     const tripTypeEl = document.getElementById('tripType'); 
-    const regionField = document.getElementById('regionField'); // '도착 권역 지자체' 입력 영역
+    const regionField = document.getElementById('regionField');
 
-    // 2. 요소가 하나라도 누락될 경우 스크립트 오류를 방지합니다.
     if (!tripTypeEl || !regionField) return;
 
-    // 3. HTML에 정의된 옵션 값 '외'를 기준으로 참/거짓 논리를 판별합니다.
     if (tripTypeEl.value === '외') {
-        // 조건이 참('근무지 외')일 경우에만 해당 영역을 노출합니다.
         regionField.style.display = 'block'; 
     } else {
-        // 그 외의 모든 조건에서는 완벽하게 숨김 처리합니다.
         regionField.style.display = 'none';  
         
-        // 데이터 정합성 유지: 숨겨질 때 내부의 선택 값도 함께 초기화합니다.
         const regionSelect = document.getElementById('region');
         if (regionSelect) {
-            regionSelect.value = ''; 
+            regionSelect.value = ''; // HTML의 빈 option과 연동되어 정상 초기화 됨
         }
     }
 
-    // 4. 변경된 조건에 맞추어 계산 결과(Preview)를 업데이트합니다.
     if (typeof updatePreview === 'function') {
         updatePreview();
     }
