@@ -296,58 +296,126 @@ function addRoster() {
 
 /**
  * PDF 다운로드 함수
- * html2pdf CDN 유지 + html2canvas x/y offset 직접 보정으로 잘림 해결
+ * rowspan 셀을 캡처 전 임시 변환하여 html2canvas 렌더링 버그 우회
  */
 function generatePDF() {
     const target = document.getElementById('pdfTargetWrapper');
     if (!target) return;
 
+    document.getElementById('pdfHeader').style.display = 'block';
+    document.getElementById('pdfFooter').style.display = 'block';
+    const noPrintElements = target.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => el.style.display = 'none');
+    const scrollWrapper = document.getElementById('tableScrollWrapper');
+    const originalOverflow = scrollWrapper.style.overflowX;
+    scrollWrapper.style.overflowX = 'visible';
+    const originalWidth    = target.style.width;
+    const originalMinWidth = target.style.minWidth;
+    target.style.width    = '1200px';
+    target.style.minWidth = '1200px';
+
+    // ── rowspan 임시 변환 ──────────────────────────────────────────────
+    // html2canvas는 rowspan 높이를 잘못 계산하므로
+    // 캡처 전에 rowspan 제거 후 각 행에 병합처럼 보이는 td를 직접 삽입
+    const table   = document.getElementById('rosterTable');
+    const rows    = table.querySelectorAll('thead tr');
+    const row1    = rows[0];
+    const row2    = rows[1];
+    const fixedCells = []; // 복원용
+
+    row1.querySelectorAll('th[rowspan]').forEach(function(th) {
+        const span    = parseInt(th.getAttribute('rowspan'));
+        const text    = th.textContent.trim();
+        const bgColor = window.getComputedStyle(row1).backgroundColor;
+        const isPrint = th.classList.contains('no-print');
+
+        // rowspan 제거 → 1행 높이만 차지하도록
+        th.removeAttribute('rowspan');
+        th.style.verticalAlign = 'middle';
+
+        if (span > 1) {
+            // 2행에 동일 내용 셀 삽입 (시각적으로 병합처럼 보이게)
+            const td2 = document.createElement('th');
+            td2.textContent = '';  // 2행은 비워서 경계만 표시
+            td2.style.cssText = th.style.cssText;
+            td2.style.background = window.getComputedStyle(row2).backgroundColor;
+            td2.style.border = '1px solid #e2e8f0';
+            td2.style.padding = '4px 8px';
+            if (isPrint) td2.classList.add('no-print');
+
+            // row2의 첫 번째 위치에 삽입 (성명→출장지→기간 순서 맞춤)
+            row2.insertBefore(td2, row2.firstChild);
+            fixedCells.push({ row: row2, el: td2, th: th });
+        }
+    });
+    // ──────────────────────────────────────────────────────────────────
+
     function restore() {
+        // rowspan 원복
+        fixedCells.forEach(function(item) {
+            item.th.setAttribute('rowspan', '2');
+            item.row.removeChild(item.el);
+        });
         document.getElementById('pdfHeader').style.display = 'none';
         document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
         scrollWrapper.style.overflowX = originalOverflow;
-        target.style.position = '';
-        target.style.left     = '';
-        target.style.width    = '';
+        target.style.width    = originalWidth;
+        target.style.minWidth = originalMinWidth;
     }
 
-    document.getElementById('pdfHeader').style.display = 'block';
-    document.getElementById('pdfFooter').style.display = 'block';
+    const captureW = target.scrollWidth  + 40;
+    const captureH = target.scrollHeight + 40;
 
-    const noPrintElements = target.querySelectorAll('.no-print');
-    noPrintElements.forEach(el => el.style.display = 'none');
+    html2canvas(target, {
+        scale:        2,
+        useCORS:      true,
+        allowTaint:   true,
+        scrollX:      0,
+        scrollY:      0,
+        x:            0,
+        y:            0,
+        width:        captureW,
+        height:       captureH,
+        windowWidth:  captureW,
+        windowHeight: captureH,
+        logging:      false
+    }).then(function(canvas) {
+        restore();
 
-    const scrollWrapper = document.getElementById('tableScrollWrapper');
-    const originalOverflow = scrollWrapper.style.overflowX;
-    scrollWrapper.style.overflowX = 'visible';
+        const { jsPDF } = window.jspdf;
+        const pdf     = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const pageW   = pdf.internal.pageSize.getWidth();
+        const pageH   = pdf.internal.pageSize.getHeight();
+        const margin  = 10;
+        const usableW = pageW - margin * 2;
+        const usableH = pageH - margin * 2;
 
-    // target을 body 기준 (0, 0)으로 이동 후 캡처 — 사이드바 오프셋 제거
-    target.style.position = 'fixed';
-    target.style.left     = '0px';
-    target.style.width    = '1060px';
+        const canvasW = canvas.width;
+        const canvasH = canvas.height;
+        const scale   = usableW / canvasW;
+        const pageHpx = usableH / scale;
+        let   srcY    = 0;
+        let   pageIdx = 0;
 
-    const opt = {
-        margin:      [8, 6, 8, 6],
-        filename:    '출장별첨_여비지급명부.pdf',
-        image:       { type: 'jpeg', quality: 1.0 },
-        html2canvas: {
-            scale:       2,
-            useCORS:     true,
-            scrollX:     0,
-            scrollY:     0,
-            windowWidth: 1060,
-            logging:     false,
-            x:           0,
-            y:           0
-        },
-        jsPDF:     { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+        while (srcY < canvasH) {
+            if (pageIdx > 0) pdf.addPage();
+            const sliceH = Math.min(pageHpx, canvasH - srcY);
+            const tmp    = document.createElement('canvas');
+            tmp.width    = canvasW;
+            tmp.height   = sliceH;
+            tmp.getContext('2d').drawImage(canvas, 0, srcY, canvasW, sliceH, 0, 0, canvasW, sliceH);
+            pdf.addImage(tmp.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH * scale);
+            srcY += pageHpx;
+            pageIdx++;
+        }
 
-    html2pdf().set(opt).from(target).save()
-        .then(restore)
-        .catch(err => { console.error('PDF 오류:', err); restore(); });
+        pdf.save('출장별첨_여비지급명부.pdf');
+
+    }).catch(function(err) {
+        console.error('PDF 오류:', err);
+        restore();
+    });
 }
 /**
  * 시뮬레이션 샘플 데이터 자동 로드
