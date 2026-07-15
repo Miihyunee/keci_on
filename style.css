@@ -360,6 +360,11 @@ body {
 .split-row .input-wrap input {
     height: 32px !important;
     font-size: 12px !important;
+    padding-right: 36px !important;
+}
+.split-row .input-wrap .unit {
+    font-size: 11px;
+    right: 8px;
 }
 
 .badge-personal, .badge-corp {
