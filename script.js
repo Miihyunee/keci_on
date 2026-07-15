@@ -3,13 +3,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // [중요] .hideable 클래스가 붙은 모든 요소(권역, 숙박비, 식사제공 등)를 강제로 표시
-    const hideableElements = document.querySelectorAll('.hideable');
-    hideableElements.forEach(el => {
-        el.style.display = 'block'; 
-    });
+    // 1. 강제 노출(display: block) 로직 전면 삭제 완료
 
-    // 기존 유효성 체크 및 바인딩
+    // 2. 페이지 로드 시점의 기본 선택 값에 맞추어 UI를 즉시 동기화합니다.
+    // 각 함수가 스스로 논리 조건을 판단하여 필요한 입력 박스만 노출시킵니다.
     onDateChange();
     onVehicleChange();
     onTripTypeChange();
@@ -172,20 +169,31 @@ function updatePreview() {
  * 출장 권역 변경 시 필드 제어 및 데이터 갱신
  */
 function onTripTypeChange() {
+    // 1. 제어할 대상 요소의 DOM 객체를 호출합니다.
     const tripTypeEl = document.getElementById('tripType'); 
-    const regionField = document.getElementById('regionField'); 
+    const regionField = document.getElementById('regionField'); // '도착 권역 지자체' 입력 영역
 
+    // 2. 요소가 하나라도 누락될 경우 스크립트 오류를 방지합니다.
     if (!tripTypeEl || !regionField) return;
 
+    // 3. HTML에 정의된 옵션 값 '외'를 기준으로 참/거짓 논리를 판별합니다.
     if (tripTypeEl.value === '외') {
-        regionField.style.display = 'block';
+        // 조건이 참('근무지 외')일 경우에만 해당 영역을 노출합니다.
+        regionField.style.display = 'block'; 
     } else {
-        regionField.style.display = 'none';
+        // 그 외의 모든 조건에서는 완벽하게 숨김 처리합니다.
+        regionField.style.display = 'none';  
         
-        const regionSelect = document.getElementById('region'); 
+        // 데이터 정합성 유지: 숨겨질 때 내부의 선택 값도 함께 초기화합니다.
+        const regionSelect = document.getElementById('region');
         if (regionSelect) {
             regionSelect.value = ''; 
         }
+    }
+
+    // 4. 변경된 조건에 맞추어 계산 결과(Preview)를 업데이트합니다.
+    if (typeof updatePreview === 'function') {
+        updatePreview();
     }
 }
 
