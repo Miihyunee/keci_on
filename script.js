@@ -180,7 +180,8 @@ function onTripTypeChange() {
     if (!tripTypeEl || !regionField) return;
 
     if (tripTypeEl.value === '외') {
-        regionField.style.display = 'block'; 
+        // [수정 3] display:flex로 변경하여 form-grid 내 다른 요소들과 줄맞춤 일치
+        regionField.style.display = 'flex'; 
     } else {
         regionField.style.display = 'none';  
         
@@ -196,7 +197,7 @@ function onTripTypeChange() {
 }
 
 /**
- * 교통수단 변경 시 입력 제어 로직
+ * 차량 종류 변경 이벤트 핸들러
  */
 function onVehicleChange() {
     const vehicleEl = document.getElementById('vehicle');
@@ -295,53 +296,59 @@ function addRoster() {
 
 /**
  * PDF 다운로드 함수
+ * html2pdf CDN 유지 + html2canvas x/y offset 직접 보정으로 잘림 해결
  */
 function generatePDF() {
     const target = document.getElementById('pdfTargetWrapper');
     if (!target) return;
 
+    function restore() {
+        document.getElementById('pdfHeader').style.display = 'none';
+        document.getElementById('pdfFooter').style.display = 'none';
+        noPrintElements.forEach(el => el.style.display = '');
+        scrollWrapper.style.overflowX = originalOverflow;
+        target.style.position = '';
+        target.style.left     = '';
+        target.style.width    = '';
+    }
+
     document.getElementById('pdfHeader').style.display = 'block';
     document.getElementById('pdfFooter').style.display = 'block';
-    
+
     const noPrintElements = target.querySelectorAll('.no-print');
     noPrintElements.forEach(el => el.style.display = 'none');
 
     const scrollWrapper = document.getElementById('tableScrollWrapper');
     const originalOverflow = scrollWrapper.style.overflowX;
-    scrollWrapper.style.overflowX = 'visible'; 
+    scrollWrapper.style.overflowX = 'visible';
 
-    const originalWidth = target.style.width;
-    target.style.width = '1050px'; 
+    // target을 body 기준 (0, 0)으로 이동 후 캡처 — 사이드바 오프셋 제거
+    target.style.position = 'fixed';
+    target.style.left     = '0px';
+    target.style.width    = '1060px';
 
     const opt = {
-        margin:       [12, 10, 12, 10],
-        filename:     '출장별첨_여비지급명부.pdf',
-        image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { 
-            scale: 2.5, 
-            useCORS: true, 
-            scrollY: 0,
-            windowWidth: 1200
+        margin:      [8, 6, 8, 6],
+        filename:    '출장별첨_여비지급명부.pdf',
+        image:       { type: 'jpeg', quality: 1.0 },
+        html2canvas: {
+            scale:       2,
+            useCORS:     true,
+            scrollX:     0,
+            scrollY:     0,
+            windowWidth: 1060,
+            logging:     false,
+            x:           0,
+            y:           0
         },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        jsPDF:     { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(target).save().then(() => {
-        document.getElementById('pdfHeader').style.display = 'none';
-        document.getElementById('pdfFooter').style.display = 'none';
-        noPrintElements.forEach(el => el.style.display = '');
-        scrollWrapper.style.overflowX = originalOverflow;
-        target.style.width = originalWidth;
-    }).catch(err => {
-        console.error("PDF 변환 오류 수습:", err);
-        document.getElementById('pdfHeader').style.display = 'none';
-        document.getElementById('pdfFooter').style.display = 'none';
-        noPrintElements.forEach(el => el.style.display = '');
-        scrollWrapper.style.overflowX = originalOverflow;
-        target.style.width = originalWidth;
-    });
+    html2pdf().set(opt).from(target).save()
+        .then(restore)
+        .catch(err => { console.error('PDF 오류:', err); restore(); });
 }
-
 /**
  * 시뮬레이션 샘플 데이터 자동 로드
  */
