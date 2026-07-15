@@ -391,6 +391,13 @@ input[type="number"] {
     overflow: visible !important;
 }
 
+
+/* [수정 3] 도착 권역 지자체 필드 줄맞춤 보정 */
+/* form-grid 내에서 display:none → flex 전환 시 다른 필드와 정렬 일치 */
+.form-field.hideable {
+    display: flex; /* JS에서 none/flex 토글 — block 대신 flex 사용 */
+}
+
 .site-footer {
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
@@ -419,7 +426,14 @@ input[type="number"] {
         overflow: visible !important;
         background: #fff !important;
     }
-    .sidebar, .main-navbar, .no-print, .beta-notice, .site-footer { 
+    .sidebar, .main-navbar, .no-print, .beta-notice, 
+/* [수정 3] 도착 권역 지자체 필드 줄맞춤 보정 */
+/* form-grid 내에서 display:none → flex 전환 시 다른 필드와 정렬 일치 */
+.form-field.hideable {
+    display: flex; /* JS에서 none/flex 토글 — block 대신 flex 사용 */
+}
+
+.site-footer { 
         display: none !important; 
     }
     #rosterTable {
@@ -428,6 +442,12 @@ input[type="number"] {
     }
 }
 /* 수정됨: 숨겨진 필드 강제 표시 방해 요소(display: block !important) 삭제 및 주석 처리됨 */
+
+
+/* PDF 캡처 시 rowspan 헤더 정렬 보정 */
+#rosterTable thead th[rowspan] {
+    vertical-align: middle;
+}
 
 /* 날짜 입력칸 브라우저 기본 형식 이슈 보완 */
 input[type="date"] {
