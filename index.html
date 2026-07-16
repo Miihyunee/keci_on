@@ -41,10 +41,8 @@
     
     <!-- 상단 글로벌 네비게이션 바 -->
     <nav class="main-navbar no-print">
-      <div class="timer-info">
-        <i class="fa-regular fa-clock"></i>
-        <span>로그인 연장 대기시간 <strong>59:59</strong></span>
-        <a href="#" class="btn-timer-extend" onclick="alert('세션 시간이 연장되었습니다.'); return false;">연장</a>
+      <div>
+        <i class="fa-solid fa-circle-info"></i> &nbsp;<strong>안내</strong> 본 여비 계산기는 KECI ON 도입 검토용 프로토타입 버전입니다. 실제 기안 전 정산값의 교차 확인을 권장합니다.
       </div>
     </nav>
 
@@ -52,8 +50,7 @@
     <main class="content">
       
       <div class="beta-notice no-print">
-        <i class="fa-solid fa-circle-info"></i> &nbsp;<strong>안내</strong> 본 여비 계산기는 KECI ON 도입 검토용 프로토타입 버전입니다. 실제 기안 전 정산값의 교차 확인을 권장합니다.
-      </div>
+        의견청취 폼 링크 입력칸      </div>
 
       <!-- 입력 카드 구조 -->
       <section class="card no-print">
@@ -69,7 +66,6 @@
               <div class="form-field">
                 <label for="name">출장자</label>
                 <input type="text" id="name" placeholder="예: 홍길동">
-                <div class="field-sub"><span class="error-msg">출장자 성명을 기재해 주십시오.</span></div>
               </div>
               <div class="form-field">
                 <label for="role">직급</label>
@@ -93,7 +89,6 @@
               <div class="form-field">
                 <label for="destination">출장지</label>
                 <input type="text" id="destination" placeholder="예: 정부세종청사">
-                <div class="field-sub"><span class="error-msg">출장지를 정확히 기재해 주십시오.</span></div>
               </div>
               <div class="form-field span-2">
                 <label for="dateStart">출장 기간 <span id="periodPreview" style="font-size: 12px; color: var(--primary-color); font-weight: normal; margin-left:8px;"></span></label>
@@ -103,7 +98,7 @@
                   <input type="date" id="dateEnd" onchange="onDateChange()">
                   <span class="date-info" id="dateInfo"></span>
                 </div>
-                <div class="field-sub"><span class="error-msg">정확한 출장 기간 일정을 선택해 주십시오.</span></div>
+
               </div>
               <div class="form-field span-2">
                 <label for="purpose">출장 용무</label>
@@ -124,7 +119,6 @@
                   <option value="내">근무지 내 (4시간 미만)</option>
                   <option value="외" selected>근무지 외</option>
                 </select>
-                <div class="field-sub"><span class="help-text" id="tripTypeHelp">타 시·군 등으로의 출장 복명</span></div>
               </div>
               <div class="form-field">
                 <label for="grade">해당 직급 등급</label>
@@ -139,10 +133,7 @@
                 <select id="region" onchange="updatePreview()">
                   <!-- 수정됨: 초기화 오류 방지를 위한 디폴트 옵션 추가 -->
                   <option value="" disabled>지자체 선택</option>
-                  <optgroup label="특별시">
-                    <option value="서울">서울특별시</option>
-                  </optgroup>
-                  <optgroup label="광역시·특별자치시">
+                    <option value="서울" selected>서울특별시</option>
                     <option value="광역시">인천광역시</option>
                     <option value="광역시">부산광역시</option>
                     <option value="광역시">대구광역시</option>
@@ -150,9 +141,7 @@
                     <option value="대전">대전광역시</option>
                     <option value="광역시">울산광역시</option>
                     <option value="기타">세종특별자치시</option>
-                  </optgroup>
-                  <optgroup label="도 관할 권역">
-                    <option value="기타" selected>경기도</option>
+                    <option value="기타">경기도</option>
                     <option value="기타">강원특별자치도</option>
                     <option value="기타">충청북도</option>
                     <option value="기타">충청남도</option>
@@ -227,11 +216,11 @@
                   <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
                     <span class="split-label personal-label" style="width: 40px;">개인</span>
                     <div style="display:flex; align-items:center; gap:4px;">
-                      <input type="number" id="lodgingPersonalNights" value="0" min="0" max="364" oninput="onDateChange()" style="width: 50px; text-align: center; height:32px; font-size:12px; border:1px solid #cbd5e1; border-radius:6px; padding:4px 6px; box-sizing:border-box;">
+                      <input type="number" id="lodgingPersonalNights" min="0" max="10" oninput="onDateChange()" style="width: 50px; text-align: center; height:32px; font-size:12px; border:1px solid #cbd5e1; border-radius:6px; padding:4px 6px; box-sizing:border-box;">
                       <span style="font-size:12px; color:#64748b; white-space:nowrap;">박</span>
                     </div>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingPersonalAmount" value="0" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange()" style="width: 120px; text-align: right;">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingPersonalAmount" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange()" style="width: 120px; text-align: right;">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -240,11 +229,11 @@
                   <div class="split-row" style="display: flex; align-items: center; gap: 8px;">
                     <span class="split-label corp-label" style="width: 40px;">법인</span>
                     <div style="display:flex; align-items:center; gap:4px;">
-                      <input type="number" id="lodgingCorpNights" value="0" min="0" max="364" oninput="onDateChange()" style="width: 50px; text-align: center; height:32px; font-size:12px; border:1px solid #cbd5e1; border-radius:6px; padding:4px 6px; box-sizing:border-box;">
+                      <input type="number" id="lodgingCorpNights" min="0" max="10" oninput="onDateChange()" style="width: 50px; text-align: center; height:32px; font-size:12px; border:1px solid #cbd5e1; border-radius:6px; padding:4px 6px; box-sizing:border-box;">
                       <span style="font-size:12px; color:#64748b; white-space:nowrap;">박</span>
                     </div>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingCorpAmount" value="0" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange()" style="width: 120px; text-align: right;">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingCorpAmount" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange()" style="width: 120px; text-align: right;">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -256,7 +245,7 @@
               <div class="form-field hideable" id="freeMealsField">
                 <label for="freeMeals">식사 제공 공제회수</label>
                 <div class="input-wrap">
-                  <input type="number" id="freeMeals" value="0" min="0" oninput="updatePreview()">
+                  <input type="number" id="freeMeals" min="0" oninput="updatePreview()">
                   <span class="unit">회</span>
                 </div>
                 <div class="field-sub"></div>
@@ -273,14 +262,14 @@
                   <div class="split-row">
                     <span class="split-label personal-label">개인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFarePersonal" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFarePersonal" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
                   <div class="split-row">
                     <span class="split-label corp-label">법인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFareCorp" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFareCorp" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -293,14 +282,14 @@
                   <div class="split-row">
                     <span class="split-label personal-label">개인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFuelPersonal" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFuelPersonal" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
                   <div class="split-row">
                     <span class="split-label corp-label">법인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFuelCorp" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportFuelCorp" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -313,14 +302,14 @@
                   <div class="split-row">
                     <span class="split-label personal-label">개인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportParkingPersonal" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportParkingPersonal" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
                   <div class="split-row">
                     <span class="split-label corp-label">법인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportParkingCorp" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportParkingCorp" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -333,14 +322,14 @@
                   <div class="split-row">
                     <span class="split-label personal-label">개인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportHipassPersonal" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportHipassPersonal" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
                   <div class="split-row">
                     <span class="split-label corp-label">법인</span>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportHipassCorp" value="0" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="transportHipassCorp" min="0" step="100" oninput="this.value=this.value.replace(/[^0-9]/g,''); updatePreview()">
                       <span class="unit">원</span>
                     </div>
                   </div>
@@ -370,28 +359,16 @@
                   <div id="tableScrollWrapper" style="overflow-x: auto;">
                       <table id="rosterTable" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 900px;">
                           <thead>
-                              <tr style="background-color: #f1f5f9; border-top: 2px solid #94a3b8; border-bottom: 1px solid #cbd5e1;">
-                                  <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">성명</th>
-                                  <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">출장지</th>
-                                  <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;">기간</th>
-                                  <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">일비</th>
-                                  <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #e0f2fe;">식비</th>
-                                  <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fce7f3;">숙박비</th>
-                                  <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #fef3c7;">교통비</th>
-                                  <th colspan="2" style="padding: 6px; border: 1px solid #e2e8f0; background-color: #dcfce7;">총액</th>
-                                  <th rowspan="2" style="padding: 8px; border: 1px solid #e2e8f0;" class="no-print">관리</th>
-                              </tr>
-                              <tr style="background-color: #f8fafc; border-bottom: 2px solid #cbd5e1;">
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">개인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #475569;">법인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #0369a1;">개인</th>
-                                  <th style="padding: 4px; border: 1px solid #e2e8f0; color: #047857;">법인</th>
+                              <tr style="background-color: #f1f5f9; border-top: 2px solid #94a3b8; border-bottom: 2px solid #cbd5e1;">
+                                  <th style="padding: 8px; border: 1px solid #e2e8f0;">성명</th>
+                                  <th style="padding: 8px; border: 1px solid #e2e8f0;">출장지</th>
+                                  <th style="padding: 8px; border: 1px solid #e2e8f0;">기간</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;">일비</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;">식비</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;">숙박비</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;">교통비</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;">총액</th>
+                                  <th style="padding: 6px; border: 1px solid #e2e8f0;" class="no-print">관리</th>
                               </tr>
                           </thead>
                           <tbody id="rosterTbody">
@@ -420,7 +397,7 @@
     </main>
 
     <footer class="site-footer no-print">
-      Copyright © 한국환경보전원 출장복명지원시스템 KECI ON All rights reserved.
+      Copyright © Korea Environmental Conservation Institute All rights reserved
     </footer>
   </div>
 </div>
