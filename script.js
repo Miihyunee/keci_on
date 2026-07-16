@@ -121,9 +121,13 @@ function updatePreview() {
     }
 
     const dailyExpense = baseDaily * tripDays;
-    const mealDeductionPerMeal = (tripType === '외') ? 8300 : 0; 
+
+    // 식비 계산: 규정 "해당일 식비의 1/3을 감액, 감액 후 1원 단위 절사"
+    // 근무지 내 출장은 식비 자체가 0원이므로 공제 없음
+    const mealDeductionPerMeal = (baseMeal > 0) ? Math.floor(Math.floor(baseMeal / 3) / 10) * 10 : 0;
     let mealExpense = (baseMeal * tripDays) - (freeMeals * mealDeductionPerMeal);
     if (mealExpense < 0) mealExpense = 0;
+
 
     // 3. 숙박비 계산
     const lodgingPersonal = getNum('lodgingPersonalAmount');
