@@ -3,6 +3,13 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 오늘 날짜를 기본값으로 설정
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD 형식
+    const dateStartEl = document.getElementById('dateStart');
+    const dateEndEl = document.getElementById('dateEnd');
+    if (dateStartEl && !dateStartEl.value) dateStartEl.value = today;
+    if (dateEndEl && !dateEndEl.value) dateEndEl.value = today;
+
     // 페이지 로드 시점의 기본 선택 값에 맞추어 UI를 즉시 동기화합니다.
     onDateChange();
     onVehicleChange();
@@ -42,10 +49,10 @@ function onDateChange() {
             alert("[1박 미만의 당일 출장의 경우 숙박비는 입력할 수 없습니다.]");
         }
         
-        if (lpNights) lpNights.value = '0';
-        if (lpAmount) lpAmount.value = '0';
-        if (lcNights) lcNights.value = '0';
-        if (lcAmount) lcAmount.value = '0';
+        if (lpNights) lpNights.value = '';
+        if (lpAmount) lpAmount.value = '';
+        if (lcNights) lcNights.value = '';
+        if (lcAmount) lcAmount.value = '';
     }
 
     updatePreview();
@@ -59,12 +66,18 @@ function updatePreview() {
     const endVal = document.getElementById('dateEnd').value;
 
     if (startVal && endVal) {
-        const formattedStart = startVal.replace(/-/g, '/');
-        const formattedEnd = endVal.replace(/-/g, '/');
-        const periodText = `${formattedStart} ~ ${formattedEnd}`;
-        
-        const previewEl = document.getElementById('periodPreview');
-        if (previewEl) previewEl.innerText = periodText;
+        const start = new Date(startVal);
+        const end = new Date(endVal);
+        if (!isNaN(start) && !isNaN(end)) {
+            const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+            const nights = diffDays;
+            const days = diffDays + 1;
+            const periodText = nights === 0
+                ? `당일 (1일)`
+                : `${nights}박 ${days}일`;
+            const previewEl = document.getElementById('periodPreview');
+            if (previewEl) previewEl.innerText = periodText;
+        }
     } else {
         const previewEl = document.getElementById('periodPreview');
         if (previewEl) previewEl.innerText = '';
@@ -142,15 +155,15 @@ function updatePreview() {
 
     // 6. 대시보드 카드 동적 렌더링
     previewContainer.innerHTML = `
-        <div class="cost-card-box" style="padding: 14px 10px;">
+        <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label">일비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${dailyExpense.toLocaleString()}</div>
-            <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
+            <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${dailyExpense.toLocaleString()}</div>
+            <div style="height: 18px;"></div>
         </div>
-        <div class="cost-card-box" style="padding: 14px 10px;">
+        <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label">식비</span>
-            <div class="cost-card-value" style="font-size: 18px; font-weight: 700;">${mealExpense.toLocaleString()}</div>
-            <div style="margin-top: 6px;"><span class="badge-personal">(개인)</span></div>
+            <div class="cost-card-value" style="font-size: 18px; font-weight: 700; margin: auto 0;">${mealExpense.toLocaleString()}</div>
+            <div style="height: 18px;"></div>
         </div>
         <div class="cost-card-box" style="padding: 14px 10px; display: flex; flex-direction: column; justify-content: space-between; min-height: 85px;">
             <span class="cost-card-label">숙박비</span>
@@ -213,7 +226,7 @@ function onVehicleChange() {
         carFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.value = '0';      
+                el.value = '';      
                 el.disabled = true;  
             }
         });
@@ -270,24 +283,25 @@ function addRoster() {
     if (!tbody) return alert("명부 테이블(rosterTbody)을 찾을 수 없습니다.");
     
     const row = document.createElement('tr');
-    const tdStyle = "padding: 6px 4px; border: 1px solid #cbd5e1; text-align: right; width: 75px; white-space: nowrap;";
-    const centerStyle = "padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 80px;";
+    const tdBase = "padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right; white-space: nowrap; vertical-align: middle;";
+    const centerStyle = "padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle;";
     
+    // 숙박비·교통비·총액은 개인/법인 2줄 표시, 일비·식비는 단일 값
+    const twoLine = (personal, corp) => `
+        <span style="color:#1a73e8; font-size:11px;">(개인)</span> ${personal.toLocaleString()}원<br>
+        <span style="color:#64748b; font-size:11px;">(법인)</span> <span style="color:#94a3b8;">${corp.toLocaleString()}원</span>
+    `;
+
     row.innerHTML = `
         <td style="${centerStyle}">${name}</td>
         <td style="${centerStyle}">${destination}</td>
-        <td style="padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 140px; font-size: 11px;">${period}</td>
-        <td style="${tdStyle}">${dailyPersonal.toLocaleString()}</td>
-        <td style="${tdStyle} color: #94a3b8;">${dailyCorp.toLocaleString()}</td>
-        <td style="${tdStyle}">${mealPersonal.toLocaleString()}</td>
-        <td style="${tdStyle} color: #94a3b8;">${mealCorp.toLocaleString()}</td>
-        <td style="${tdStyle}">${lodgingPersonal.toLocaleString()}</td>
-        <td style="${tdStyle} color: #94a3b8;">${lodgingCorp.toLocaleString()}</td>
-        <td style="${tdStyle}">${transPersonal.toLocaleString()}</td>
-        <td style="${tdStyle} color: #94a3b8;">${transCorp.toLocaleString()}</td>
-        <td style="${tdStyle} font-weight: 700; color: #0284c7; background-color:#f0f9ff;">${totalPersonal.toLocaleString()}</td>
-        <td style="${tdStyle} font-weight: 700; color: #16a34a; background-color:#f0fdf4;">${totalCorp.toLocaleString()}</td>
-        <td style="padding: 6px 4px; border: 1px solid #cbd5e1; text-align: center; width: 50px;" class="no-print">
+        <td style="${centerStyle}; width: 140px; font-size: 11px;">${period}</td>
+        <td style="${tdBase}">${dailyPersonal.toLocaleString()}원</td>
+        <td style="${tdBase}">${mealPersonal.toLocaleString()}원</td>
+        <td style="${tdBase}">${twoLine(lodgingPersonal, lodgingCorp)}</td>
+        <td style="${tdBase}">${twoLine(transPersonal, transCorp)}</td>
+        <td style="${tdBase} font-weight: 700;">${twoLine(totalPersonal, totalCorp)}</td>
+        <td style="${centerStyle}" class="no-print">
             <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 11px;">삭제</button>
         </td>
     `;
@@ -314,48 +328,10 @@ function generatePDF() {
     target.style.width    = '1200px';
     target.style.minWidth = '1200px';
 
-    // ── rowspan 임시 변환 ──────────────────────────────────────────────
-    // html2canvas는 rowspan 높이를 잘못 계산하므로
-    // 캡처 전에 rowspan 제거 후 각 행에 병합처럼 보이는 td를 직접 삽입
-    const table   = document.getElementById('rosterTable');
-    const rows    = table.querySelectorAll('thead tr');
-    const row1    = rows[0];
-    const row2    = rows[1];
-    const fixedCells = []; // 복원용
-
-    row1.querySelectorAll('th[rowspan]').forEach(function(th) {
-        const span    = parseInt(th.getAttribute('rowspan'));
-        const text    = th.textContent.trim();
-        const bgColor = window.getComputedStyle(row1).backgroundColor;
-        const isPrint = th.classList.contains('no-print');
-
-        // rowspan 제거 → 1행 높이만 차지하도록
-        th.removeAttribute('rowspan');
-        th.style.verticalAlign = 'middle';
-
-        if (span > 1) {
-            // 2행에 동일 내용 셀 삽입 (시각적으로 병합처럼 보이게)
-            const td2 = document.createElement('th');
-            td2.textContent = '';  // 2행은 비워서 경계만 표시
-            td2.style.cssText = th.style.cssText;
-            td2.style.background = window.getComputedStyle(row2).backgroundColor;
-            td2.style.border = '1px solid #e2e8f0';
-            td2.style.padding = '4px 8px';
-            if (isPrint) td2.classList.add('no-print');
-
-            // row2의 첫 번째 위치에 삽입 (성명→출장지→기간 순서 맞춤)
-            row2.insertBefore(td2, row2.firstChild);
-            fixedCells.push({ row: row2, el: td2, th: th });
-        }
-    });
-    // ──────────────────────────────────────────────────────────────────
+    // thead가 단일 행이므로 rowspan 변환 불필요
+    const fixedCells = [];
 
     function restore() {
-        // rowspan 원복
-        fixedCells.forEach(function(item) {
-            item.th.setAttribute('rowspan', '2');
-            item.row.removeChild(item.el);
-        });
         document.getElementById('pdfHeader').style.display = 'none';
         document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
@@ -466,10 +442,10 @@ function loadSampleData() {
 }
 
 function resetForm() {
+    const today = new Date().toLocaleDateString('en-CA');
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
-        if (input.type === 'date') input.value = '';
-        else if (input.type === 'number') input.value = '0';
+        if (input.type === 'date') input.value = today;
         else input.value = '';
     });
     document.getElementById('vehicle').value = "public";
