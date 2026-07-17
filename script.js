@@ -23,11 +23,11 @@ function onDateChange() {
     const startEl = document.getElementById('dateStart');
     const endEl = document.getElementById('dateEnd');
     
-    // 수정됨: 역방향 날짜 선택에 대한 유효성 방어 로직 추가
+    // 역방향 날짜 선택 유효성 방어 로직
     if (startEl && endEl && startEl.value && endEl.value) {
         if (new Date(endEl.value) < new Date(startEl.value)) {
             alert("종료일은 시작일보다 빠를 수 없습니다. 올바른 일정을 선택해 주십시오.");
-            endEl.value = startEl.value; // 강제 보정
+            endEl.value = startEl.value;
         }
     }
     
@@ -38,21 +38,78 @@ function onDateChange() {
 
     if (!startEl || !endEl) return;
 
-    // 시작일과 종료일이 같아 '당일' 출장인 경우
-    if (startEl.value && endEl.value && startEl.value === endEl.value) {
+    // 출장 박수 계산
+    let maxNights = 0;
+    if (startEl.value && endEl.value) {
+        const start = new Date(startEl.value);
+        const end = new Date(endEl.value);
+        if (!isNaN(start) && !isNaN(end)) {
+            maxNights = Math.max(0, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+        }
+    }
+
+    // 당일 출장인 경우 숙박비 입력 초기화
+    if (maxNights === 0) {
         const hasValue = (lpAmount && parseInt(lpAmount.value || 0, 10) > 0) || 
                         (lcAmount && parseInt(lcAmount.value || 0, 10) > 0) ||
                         (lpNights && parseInt(lpNights.value || 0, 10) > 0) || 
                         (lcNights && parseInt(lcNights.value || 0, 10) > 0);
-        
         if (hasValue) {
             alert("[1박 미만의 당일 출장의 경우 숙박비는 입력할 수 없습니다.]");
         }
-        
         if (lpNights) lpNights.value = '';
         if (lpAmount) lpAmount.value = '';
         if (lcNights) lcNights.value = '';
         if (lcAmount) lcAmount.value = '';
+        updatePreview();
+        return;
+    }
+
+    // ── 박수 상한 적용 ──────────────────────────────────────────
+    // 개인 + 법인 합산이 maxNights를 초과하지 않도록 제한
+    let pNights = parseInt(lpNights ? lpNights.value || 0 : 0, 10);
+    let cNights = parseInt(lcNights ? lcNights.value || 0 : 0, 10);
+
+    // 개별 입력값이 maxNights를 초과하면 잘라냄
+    if (pNights > maxNights) { pNights = maxNights; if (lpNights) lpNights.value = pNights; }
+    if (cNights > maxNights) { cNights = maxNights; if (lcNights) lcNights.value = cNights; }
+
+    // 합산이 maxNights를 초과하면 나중에 입력한 쪽(법인)을 줄임
+    if (pNights + cNights > maxNights) {
+        cNights = maxNights - pNights;
+        if (lcNights) lcNights.value = cNights;
+    }
+
+    // max 속성 동적 업데이트 (UX 보조)
+    if (lpNights) lpNights.max = maxNights;
+    if (lcNights) lcNights.max = maxNights;
+
+    // ── 제2호 금액 상한 적용 ────────────────────────────────────
+    const grade = document.getElementById('grade') ? document.getElementById('grade').value : '';
+    const region = document.getElementById('region') ? document.getElementById('region').value : '';
+
+    if (grade === '2' && region) {
+        // 지역별 1박 상한액
+        const regionCapMap = { '특별시': 100000, '광역시': 80000, '기타': 70000, '도': 70000, '특별자치도': 70000 };
+        const capPerNight = regionCapMap[region] || 70000;
+
+        // 개인/법인 각각의 상한 = 해당 박수 × 1박 상한액
+        const pCap = pNights * capPerNight;
+        const cCap = cNights * capPerNight;
+
+        let pAmt = parseInt(lpAmount ? lpAmount.value.replace(/[^0-9]/g, '') || 0 : 0, 10);
+        let cAmt = parseInt(lcAmount ? lcAmount.value.replace(/[^0-9]/g, '') || 0 : 0, 10);
+
+        if (pAmt > pCap) {
+            pAmt = pCap;
+            if (lpAmount) lpAmount.value = pAmt;
+            alert(`제2호 기준: 개인 숙박비는 ${pNights}박 × ${capPerNight.toLocaleString()}원 = 최대 ${pCap.toLocaleString()}원까지 입력 가능합니다.`);
+        }
+        if (cAmt > cCap) {
+            cAmt = cCap;
+            if (lcAmount) lcAmount.value = cAmt;
+            alert(`제2호 기준: 법인 숙박비는 ${cNights}박 × ${capPerNight.toLocaleString()}원 = 최대 ${cCap.toLocaleString()}원까지 입력 가능합니다.`);
+        }
     }
 
     updatePreview();
@@ -136,10 +193,32 @@ function updatePreview() {
 
     const previewTextEl = document.getElementById('lodgingPreviewText');
     if (previewTextEl) {
+        // 박수 및 제2호 상한 안내 문구
+        const startVal2 = document.getElementById('dateStart').value;
+        const endVal2 = document.getElementById('dateEnd').value;
+        let maxNights2 = 0;
+        if (startVal2 && endVal2) {
+            const s = new Date(startVal2), e = new Date(endVal2);
+            if (!isNaN(s) && !isNaN(e)) maxNights2 = Math.max(0, Math.round((e - s) / (1000 * 60 * 60 * 24)));
+        }
+        const gradeVal = document.getElementById('grade') ? document.getElementById('grade').value : '';
+        const regionVal = document.getElementById('region') ? document.getElementById('region').value : '';
+        const regionCapMap = { '특별시': 100000, '광역시': 80000, '기타': 70000, '도': 70000, '특별자치도': 70000 };
+
+        let guideText = '';
+        if (maxNights2 > 0) {
+            guideText = `최대 ${maxNights2}박 입력 가능`;
+            if (gradeVal === '2' && regionVal && regionCapMap[regionVal]) {
+                const cap = regionCapMap[regionVal];
+                const totalCap = cap * maxNights2;
+                guideText += ` | 제2호 상한: 1박 ${cap.toLocaleString()}원 × ${maxNights2}박 = 총 ${totalCap.toLocaleString()}원`;
+            }
+        }
+
         if (lodgingExpense > 0) {
-            previewTextEl.innerText = `[입력값: ${lodgingExpense.toLocaleString()} 원]`;
+            previewTextEl.innerHTML = `[입력값: ${lodgingExpense.toLocaleString()} 원]${guideText ? `<br><span style="color:#64748b; font-size:12px;">${guideText}</span>` : ''}`;
         } else {
-            previewTextEl.innerText = ""; 
+            previewTextEl.innerHTML = guideText ? `<span style="color:#64748b; font-size:12px;">${guideText}</span>` : '';
         }
     }
 
