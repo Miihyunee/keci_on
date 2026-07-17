@@ -122,7 +122,7 @@
               </div>
               <div class="form-field">
                 <label for="grade">해당 직급 등급</label>
-                <select id="grade" onchange="updatePreview()">
+                <select id="grade" onchange="onDateChange()">
                   <option value="1">제1호 (원장/상임임원/보직자)</option>
                   <option value="2" selected>제2호 (일반 직원 전체)</option>
                 </select>
@@ -130,7 +130,7 @@
               </div>
               <div class="form-field hideable" id="regionField">
                 <label for="region">도착 권역 지자체</label>
-                <select id="region" onchange="updatePreview()">
+                <select id="region" onchange="onDateChange()">
                   <!-- 수정됨: 초기화 오류 방지를 위한 디폴트 옵션 추가 -->
                   <option value="" disabled>지자체 선택</option>
                     <option value="특별시" selected>서울특별시</option>
@@ -219,7 +219,7 @@
                       <span style="font-size:12px; color:#64748b; white-space:nowrap;">박</span>
                     </div>
                     <div class="input-wrap">
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingPersonalAmount" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange()" style="width: 120px; text-align: right;">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" id="lodgingPersonalAmount" min="0" step="1000" oninput="this.value=this.value.replace(/[^0-9]/g,''); onDateChange();" style="width: 120px; text-align: right;">
                       <span class="unit">원</span>
                     </div>
                   </div>
