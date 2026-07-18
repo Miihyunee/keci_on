@@ -15,6 +15,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Flatpickr 날짜 피커 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 </head>
 <body>
 
@@ -93,12 +98,17 @@
               <div class="form-field span-2">
                 <label for="dateStart">출장 기간 <span id="periodPreview" style="font-size: 12px; color: var(--primary-color); font-weight: normal; margin-left:8px;"></span></label>
                 <div class="date-group">
-                  <input type="date" id="dateStart" onchange="onDateChange()">
+                  <div class="fp-input-wrap" id="wrapStart">
+                    <input type="text" id="dateStart" placeholder="시작일 선택" data-input readonly>
+                    <span class="fp-icon-btn" data-toggle><i class="fa-regular fa-calendar"></i></span>
+                  </div>
                   <span class="separator">~</span>
-                  <input type="date" id="dateEnd" onchange="onDateChange()">
+                  <div class="fp-input-wrap" id="wrapEnd">
+                    <input type="text" id="dateEnd" placeholder="종료일 선택" data-input readonly>
+                    <span class="fp-icon-btn" data-toggle><i class="fa-regular fa-calendar"></i></span>
+                  </div>
                   <span class="date-info" id="dateInfo"></span>
                 </div>
-
               </div>
               <div class="form-field span-2">
                 <label for="purpose">출장 용무</label>
@@ -134,7 +144,7 @@
                   <!-- 수정됨: 초기화 오류 방지를 위한 디폴트 옵션 추가 -->
                   <option value="" disabled>지자체 선택</option>
                     <option value="특별시" selected>서울특별시</option>
-                    <option value="특별시" selected>전남광주통합특별시</option>
+                    <option value="특별시">전남광주통합특별시</option>
                     <option value="광역시">인천광역시</option>
                     <option value="광역시">부산광역시</option>
                     <option value="광역시">대구광역시</option>
