@@ -402,6 +402,207 @@ input[type="number"] {
     display: flex; /* JS에서 none/flex 토글 — block 대신 flex 사용 */
 }
 
+/* ==========================================================================
+   4. Flatpickr 커스텀 날짜 피커 테마 (KECI ON 디자인 시스템 적용)
+   ========================================================================== */
+
+/* 날짜 입력 래퍼 */
+.fp-input-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.fp-input-wrap input[data-input] {
+    flex: 1;
+    height: 42px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--g-radius);
+    padding: 0 40px 0 14px;
+    font-size: 14px;
+    color: var(--text-main);
+    background: #fff;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color var(--g-transition), box-shadow var(--g-transition);
+    width: 100%;
+}
+.fp-input-wrap input[data-input]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 86, 145, 0.12);
+}
+.fp-input-wrap input[data-input]::placeholder {
+    color: #aab4c4;
+}
+.fp-icon-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Flatpickr 기본 달력 아이콘 제거 (FA 아이콘으로 대체) */
+.flatpickr-input ~ .flatpickr-calendar-icon,
+.fp-input-wrap .flatpickr-input[data-fp-input-value]::before {
+    display: none !important;
+}
+.flatpickr-input {
+    background-image: none !important;
+}
+.keci-fp.flatpickr-calendar {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 0;
+    font-family: 'Inter', 'Pretendard', -apple-system, sans-serif;
+    width: auto !important;
+}
+
+/* 달력 팝업 너비 = 날짜 입력칸 너비에 맞춤 */
+.flatpickr-calendar {
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* 헤더 (월/년 + 이전/다음 버튼) */
+.keci-fp .flatpickr-months {
+    background: var(--primary-color);
+    border-radius: 11px 11px 0 0;
+    padding: 10px 8px;
+    align-items: center;
+}
+.keci-fp .flatpickr-month {
+    color: #fff;
+    fill: #fff;
+    height: 36px;
+}
+.keci-fp .flatpickr-current-month {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding-top: 4px;
+}
+.keci-fp .flatpickr-current-month .numInputWrapper input,
+.keci-fp .flatpickr-current-month .flatpickr-monthDropdown-months {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+}
+.keci-fp .flatpickr-current-month .flatpickr-monthDropdown-months option {
+    color: var(--text-main);
+    background: #fff;
+}
+.keci-fp .flatpickr-prev-month,
+.keci-fp .flatpickr-next-month {
+    color: #fff !important;
+    fill: #fff !important;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background var(--g-transition);
+}
+.keci-fp .flatpickr-prev-month:hover,
+.keci-fp .flatpickr-next-month:hover {
+    background: rgba(255,255,255,0.2) !important;
+}
+.keci-fp .flatpickr-prev-month svg,
+.keci-fp .flatpickr-next-month svg {
+    fill: #fff;
+}
+/* 연도 select — 월 드롭다운과 동일한 스타일 */
+.keci-fp .numInputWrapper {
+    display: none !important; /* 숫자 input 숨김 */
+}
+.keci-fp .flatpickr-current-month .cur-year,
+.keci-fp .flatpickr-year-select {
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    -webkit-appearance: auto;
+    appearance: auto;
+}
+.keci-fp .flatpickr-year-select option {
+    color: var(--text-main);
+    background: #fff;
+}
+
+/* 요일 헤더 */
+.keci-fp .flatpickr-weekdays {
+    background: #f8fafc;
+    padding: 8px 0 4px;
+    border-bottom: 1px solid #edf2f7;
+}
+.keci-fp .flatpickr-weekday {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+/* 일요일/토요일 색상 */
+.keci-fp .flatpickr-weekday:first-child { color: #e05050; }
+.keci-fp .flatpickr-weekday:last-child  { color: #4a7fcb; }
+
+/* 날짜 셀 */
+.keci-fp .flatpickr-days {
+    padding: 8px 12px 12px;
+}
+.keci-fp .dayContainer {
+    min-width: 0;
+    max-width: none;
+    width: auto;
+}
+.keci-fp .flatpickr-day {
+    max-width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-main);
+    border: none;
+    transition: background var(--g-transition), color var(--g-transition);
+    margin: 1px;
+}
+.keci-fp .flatpickr-day:hover {
+    background: #e8f0fd;
+    color: var(--primary-color);
+}
+.keci-fp .flatpickr-day.today {
+    background: #eef5ff;
+    color: var(--primary-color);
+    font-weight: 700;
+    border: 1.5px solid #b3cff7;
+}
+.keci-fp .flatpickr-day.today:hover {
+    background: #ddeafc;
+}
+.keci-fp .flatpickr-day.selected,
+.keci-fp .flatpickr-day.selected:hover {
+    background: var(--primary-color);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 86, 145, 0.35);
+}
+.keci-fp .flatpickr-day.flatpickr-disabled,
+.keci-fp .flatpickr-day.prevMonthDay,
+.keci-fp .flatpickr-day.nextMonthDay {
+    color: #c8d3de;
+}
+/* 일요일(첫번째) / 토요일(마지막) 날짜 색 */
+.keci-fp .flatpickr-day:nth-child(7n+1):not(.selected):not(.today) { color: #e05050; }
+.keci-fp .flatpickr-day:nth-child(7n):not(.selected):not(.today)   { color: #4a7fcb; }
+
 .site-footer {
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
@@ -453,9 +654,5 @@ input[type="number"] {
     vertical-align: middle;
 }
 
-/* 날짜 입력칸 브라우저 기본 형식 이슈 보완 */
-input[type="date"] {
-    display: block;
-    width: 100%;
-    min-height: 40px;
-}
+/* 날짜 입력칸 — Flatpickr로 교체되어 type="date" 스타일 불필요 */
+/* input[type="date"] { display: block; width: 100%; min-height: 40px; } */
