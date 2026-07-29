@@ -358,6 +358,29 @@ const OPINET_PRODUCTS = {
 };
 
 /**
+ * 오피넷 API 인증키를 코드에 직접 고정해두고 싶다면 아래 따옴표 안에 값을 넣어주세요.
+ * 예: const DEFAULT_OPINET_API_KEY = 'a1b2c3d4e5f6...';
+ * ⚠️ 정적 페이지 특성상 이 값은 브라우저에서 페이지 소스를 통해 누구나 볼 수 있습니다.
+ *    저장소가 공개(public) 상태라면 유출될 수 있다는 점을 감안해 주세요.
+ */
+const DEFAULT_OPINET_API_KEY = '';
+
+/**
+ * 실제 사용할 인증키를 결정합니다.
+ * 우선순위: 입력창에 지금 타이핑된 값 > 브라우저에 저장된 값(localStorage) > 코드에 고정된 기본값
+ */
+function getOpinetApiKey() {
+    const keyInput = document.getElementById('opinetApiKey');
+    const typed = keyInput ? keyInput.value.trim() : '';
+    if (typed) return typed;
+
+    const saved = localStorage.getItem('opinetApiKey');
+    if (saved) return saved;
+
+    return DEFAULT_OPINET_API_KEY.trim();
+}
+
+/**
  * 유류비 계산기 패널을 열고 닫습니다.
  */
 function toggleFuelCalc() {
@@ -371,10 +394,12 @@ function toggleFuelCalc() {
     panel.style.display = opening ? 'block' : 'none';
 
     if (opening) {
-        // 이전에 저장해 둔 인증키가 있다면 자동으로 불러옵니다.
-        const savedKey = localStorage.getItem('opinetApiKey');
+        // 인증키 입력창이 비어 있다면, 저장된 값 또는 코드에 고정된 기본값을 자동으로 채웁니다.
         const keyInput = document.getElementById('opinetApiKey');
-        if (savedKey && keyInput && !keyInput.value) keyInput.value = savedKey;
+        if (keyInput && !keyInput.value) {
+            const key = getOpinetApiKey();
+            if (key) keyInput.value = key;
+        }
 
         // 서식 초기화 등으로 연비 값이 비어있으면 기본값(10km/L)을 채워줍니다.
         const effInput = document.getElementById('fuelEfficiency');
@@ -411,13 +436,15 @@ async function fetchOpinetPrice() {
     const statusEl = document.getElementById('fuelApiStatus');
     const keyInput = document.getElementById('opinetApiKey');
     const productSelect = document.getElementById('fuelProductCode');
-    const key = keyInput ? keyInput.value.trim() : '';
+    const key = getOpinetApiKey();
     const productCode = productSelect ? productSelect.value : 'B027';
 
     if (!key) {
-        alert('오피넷 API 인증키를 먼저 입력해 주세요. ("인증키 발급받기" 링크에서 무료로 발급받을 수 있습니다.)');
+        alert('오피넷 API 인증키가 없습니다. 입력창에 인증키를 넣거나, script.js 상단의 DEFAULT_OPINET_API_KEY에 고정해 주세요. ("인증키 발급받기" 링크에서 무료로 발급받을 수 있습니다.)');
         return;
     }
+    // 입력창에 값이 비어 있다면(기본값을 사용 중이라면) 화면에도 채워서 보여줍니다.
+    if (keyInput && !keyInput.value) keyInput.value = key;
     localStorage.setItem('opinetApiKey', key);
 
     if (statusEl) {
