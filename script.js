@@ -181,10 +181,13 @@ function updatePreview() {
 
     const dailyExpense = baseDaily * tripDays;
 
-    // 식비 계산: 규정 "해당일 식비의 1/3을 감액, 감액 후 1원 단위 절사"
+    // 식비 계산: 규정 "해당일 식비 × (식사 제공 공제회수 / 3)을 감액, 감액 후 원(10원) 단위 절사"
+    // 예) 식비 25,000원 기준
+    //   - 1회 제공: 25,000 × 1/3 = 8,333 감액 → 25,000 - 8,333 = 16,667 → 원단위 절사 16,660원
+    //   - 2회 제공: 25,000 × 2/3 = 16,666 감액 → 25,000 - 16,666 = 8,334 → 원단위 절사 8,330원
     // 근무지 내 출장은 식비 자체가 0원이므로 공제 없음
-    const mealDeductionPerMeal = (baseMeal > 0) ? Math.floor(Math.floor(baseMeal / 3) / 10) * 10 : 0;
-    let mealExpense = (baseMeal * tripDays) - (freeMeals * mealDeductionPerMeal);
+    const mealDeduction = (baseMeal > 0) ? Math.floor((baseMeal * freeMeals) / 3) : 0;
+    let mealExpense = Math.floor(((baseMeal * tripDays) - mealDeduction) / 10) * 10;
     if (mealExpense < 0) mealExpense = 0;
 
 
