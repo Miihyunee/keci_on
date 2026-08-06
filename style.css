@@ -656,3 +656,54 @@ input[type="number"] {
 
 /* 날짜 입력칸 — Flatpickr로 교체되어 type="date" 스타일 불필요 */
 /* input[type="date"] { display: block; width: 100%; min-height: 40px; } */
+
+
+/* ─────────────────────────────────────────────────────────────
+   PDF 캡처 전용 스타일 (.pdf-export)
+   generatePDF() 실행 중에만 #pdfTargetWrapper 에 부여했다가 제거한다.
+   화면 표시에는 영향이 없으며, 캡처 폭을 표의 자연 너비까지 좁히고
+   글자 크기를 키워 A4 출력 시 본문이 작게 보이는 문제를 보정한다.
+   ───────────────────────────────────────────────────────────── */
+#pdfTargetWrapper.pdf-export {
+    padding: 6px !important;
+}
+#pdfTargetWrapper.pdf-export #pdfHeader {
+    font-size: 20px !important;
+    margin-bottom: 14px !important;
+}
+#pdfTargetWrapper.pdf-export #tableScrollWrapper {
+    overflow-x: visible !important;
+}
+#pdfTargetWrapper.pdf-export #rosterTable {
+    font-size: 16px !important;
+    width: 100% !important;
+    min-width: 0 !important;       /* 하한은 script.js 의 PDF_MIN_CAPTURE_W 가 담당 */
+    table-layout: auto !important;
+}
+#pdfTargetWrapper.pdf-export #rosterTable th,
+#pdfTargetWrapper.pdf-export #rosterTable td {
+    padding: 7px 6px !important;
+    font-size: 16px !important;
+    line-height: 1.45 !important;
+}
+/* 폭을 좁히면 짧은 한글이 한 글자씩 세로로 쪼개지므로 줄바꿈 금지 */
+#pdfTargetWrapper.pdf-export #rosterTable th,
+#pdfTargetWrapper.pdf-export #rosterTable td:nth-child(1),
+#pdfTargetWrapper.pdf-export #rosterTable td:nth-child(2) {
+    white-space: nowrap !important;
+}
+/* 기간 열: 날짜가 길어 한 단계 작게 유지하고 고정폭(140px) 해제 */
+#pdfTargetWrapper.pdf-export #rosterTable td:nth-child(3),
+#pdfTargetWrapper.pdf-export #rosterTable th:nth-child(3) {
+    font-size: 13px !important;
+    width: auto !important;
+}
+/* (개인)/(법인) 라벨 등 셀 내부 보조 텍스트 */
+#pdfTargetWrapper.pdf-export #rosterTable td span {
+    font-size: 13px !important;
+}
+#pdfTargetWrapper.pdf-export #pdfFooter {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    margin-top: 16px !important;
+}

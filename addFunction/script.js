@@ -597,7 +597,8 @@ function addRoster() {
 
     const formattedStart = dateStart.replace(/-/g, '/');
     const formattedEnd = dateEnd.replace(/-/g, '/');
-    const period = `${formattedStart} ~ ${formattedEnd}`;
+    // 시작일/종료일을 각각 끊기지 않는 단위로 묶어, 폭이 좁아지면 정확히 두 줄로만 나뉘게 한다
+    const period = `<span style="white-space: nowrap;">${formattedStart} ~</span> <span style="white-space: nowrap;">${formattedEnd}</span>`;
 
     const cardValues = document.querySelectorAll('.cost-card-value');
     if(cardValues.length < 5) return alert("대시보드 계산이 완료되지 않았습니다.");
@@ -646,6 +647,13 @@ function addRoster() {
 }
 
 /**
+ * PDF 캡처 최소 폭(px).
+ * 이 값이 A4 본문 폭(190mm)으로 축소되므로, 값이 작을수록 PDF 글자가 커진다.
+ * 표가 실제로 더 넓으면 자연 너비를 우선한다.
+ */
+const PDF_MIN_CAPTURE_W = 720;
+
+/**
  * PDF 다운로드 함수
  * rowspan 셀을 캡처 전 임시 변환하여 html2canvas 렌더링 버그 우회
  */
@@ -662,23 +670,33 @@ function generatePDF() {
     scrollWrapper.style.overflowX = 'visible';
     const originalWidth    = target.style.width;
     const originalMinWidth = target.style.minWidth;
-    target.style.width    = '1200px';
-    target.style.minWidth = '1200px';
 
-    // thead가 단일 행이므로 rowspan 변환 불필요
-    const fixedCells = [];
+    // 캡처 전용 확대 스타일 적용 (style.css 의 .pdf-export 규칙)
+    target.classList.add('pdf-export');
+
+    // 캡처 폭을 표가 필요로 하는 최소 폭까지 좁힌다.
+    // 캔버스는 A4 본문 폭(190mm)에 맞춰 축소되므로, 캡처 폭이 좁을수록 PDF 글자가 커진다.
+    // 1) 폭을 하한값까지 좁혀 표의 실제 최소 폭을 측정하고
+    target.style.width    = PDF_MIN_CAPTURE_W + 'px';
+    target.style.minWidth = PDF_MIN_CAPTURE_W + 'px';
+    const rosterTable = document.getElementById('rosterTable');
+    // 2) 그 값(하한 미만이면 하한)에 좌우 여백을 더해 최종 캡처 폭으로 고정한다.
+    const naturalW = Math.max(rosterTable ? rosterTable.scrollWidth : 0, PDF_MIN_CAPTURE_W) + 24;
+    target.style.width    = naturalW + 'px';
+    target.style.minWidth = naturalW + 'px';
 
     function restore() {
         document.getElementById('pdfHeader').style.display = 'none';
         document.getElementById('pdfFooter').style.display = 'none';
         noPrintElements.forEach(el => el.style.display = '');
         scrollWrapper.style.overflowX = originalOverflow;
+        target.classList.remove('pdf-export');
         target.style.width    = originalWidth;
         target.style.minWidth = originalMinWidth;
     }
 
-    const captureW = target.scrollWidth  + 40;
-    const captureH = target.scrollHeight + 40;
+    const captureW = Math.max(target.scrollWidth, naturalW) + 16;
+    const captureH = target.scrollHeight + 24;
 
     html2canvas(target, {
         scale:        2,
@@ -711,6 +729,20 @@ function generatePDF() {
         let   srcY    = 0;
         let   pageIdx = 0;
 
+        // ── 워터마크 크기: 로고 원본 종횡비를 그대로 사용해 왜곡 방지 ──
+        const wmW = 80; // mm 단위 워터마크 너비
+        let   wmH = wmW * 0.65;
+        try {
+            const wmProps = pdf.getImageProperties(KECI_LOGO_B64);
+            if (wmProps && wmProps.width && wmProps.height) {
+                wmH = wmW * (wmProps.height / wmProps.width);
+            }
+        } catch (e) {
+            console.warn('워터마크 비율 계산 실패, 기본 비율 사용:', e);
+        }
+        const wmX = (pageW - wmW) / 2;
+        const wmY = (pageH - wmH) / 2;
+
         while (srcY < canvasH) {
             if (pageIdx > 0) pdf.addPage();
             const sliceH = Math.min(pageHpx, canvasH - srcY);
@@ -720,11 +752,7 @@ function generatePDF() {
             tmp.getContext('2d').drawImage(canvas, 0, srcY, canvasW, sliceH, 0, 0, canvasW, sliceH);
             pdf.addImage(tmp.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH * scale);
 
-            // ── 워터마크: 로고 이미지 중앙 반투명 삽입 ──
-            const wmW  = 80;   // mm 단위 워터마크 너비 (비율 유지)
-            const wmH  = wmW * 0.55; // 로고 비율 (가로:세로 ≈ 1.8:1)
-            const wmX  = (pageW - wmW) / 2;
-            const wmY  = (pageH - wmH) / 2;
+            // ── 워터마크: 로고 이미지 중앙 반투명 삽입 (원본 비율 유지) ──
             pdf.saveGraphicsState();
             pdf.setGState(new pdf.GState({ opacity: 0.10 }));
             pdf.addImage(KECI_LOGO_B64, 'PNG', wmX, wmY, wmW, wmH);
