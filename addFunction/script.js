@@ -625,9 +625,10 @@ function addRoster() {
     const centerStyle = "padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle;";
     
     // 숙박비·교통비·총액은 개인/법인 2줄 표시, 일비·식비는 단일 값
+    // paren-label: 괄호 라벨만 PDF 에서 본문보다 2pt 작게 렌더링된다(금액 span 은 본문 크기 유지)
     const twoLine = (personal, corp) => `
-        <span style="color:#1a73e8; font-size:11px;">(개인)</span> ${personal.toLocaleString()}원<br>
-        <span style="color:#64748b; font-size:11px;">(법인)</span> <span style="color:#94a3b8;">${corp.toLocaleString()}원</span>
+        <span class="paren-label" style="color:#1a73e8; font-size:11px;">(개인)</span> ${personal.toLocaleString()}원<br>
+        <span class="paren-label" style="color:#64748b; font-size:11px;">(법인)</span> <span style="color:#94a3b8;">${corp.toLocaleString()}원</span>
     `;
 
     row.innerHTML = `
@@ -653,6 +654,15 @@ function addRoster() {
  */
 const PDF_MIN_CAPTURE_W = 720;
 
+/** A4 세로 기준 본문 폭(mm) — 210mm 에서 좌우 여백 10mm 씩 제외한 값 */
+const PDF_USABLE_W_MM = 190;
+
+/** 1pt 를 mm 로 환산한 값 */
+const PT_TO_MM = 25.4 / 72;
+
+/** 괄호 라벨((개인)/(법인))을 본문보다 몇 pt 작게 찍을지 */
+const PDF_PAREN_PT_DELTA = 2;
+
 /**
  * PDF 다운로드 함수
  * rowspan 셀을 캡처 전 임시 변환하여 html2canvas 렌더링 버그 우회
@@ -676,14 +686,28 @@ function generatePDF() {
 
     // 캡처 폭을 표가 필요로 하는 최소 폭까지 좁힌다.
     // 캔버스는 A4 본문 폭(190mm)에 맞춰 축소되므로, 캡처 폭이 좁을수록 PDF 글자가 커진다.
-    // 1) 폭을 하한값까지 좁혀 표의 실제 최소 폭을 측정하고
-    target.style.width    = PDF_MIN_CAPTURE_W + 'px';
-    target.style.minWidth = PDF_MIN_CAPTURE_W + 'px';
     const rosterTable = document.getElementById('rosterTable');
-    // 2) 그 값(하한 미만이면 하한)에 좌우 여백을 더해 최종 캡처 폭으로 고정한다.
-    const naturalW = Math.max(rosterTable ? rosterTable.scrollWidth : 0, PDF_MIN_CAPTURE_W) + 24;
-    target.style.width    = naturalW + 'px';
-    target.style.minWidth = naturalW + 'px';
+    const basePx = parseFloat(getComputedStyle(target).getPropertyValue('--pdf-base-font')) || 16;
+    let naturalW = PDF_MIN_CAPTURE_W;
+    let captureW = PDF_MIN_CAPTURE_W;
+
+    // 괄호 라벨 크기가 표 너비에, 표 너비가 다시 축소 배율에 영향을 주므로 두 번 반복해 수렴시킨다.
+    for (let pass = 0; pass < 2; pass++) {
+        // 1) 폭을 하한값까지 좁혀 표의 실제 최소 폭을 측정하고
+        target.style.width    = PDF_MIN_CAPTURE_W + 'px';
+        target.style.minWidth = PDF_MIN_CAPTURE_W + 'px';
+        // 2) 그 값(하한 미만이면 하한)에 좌우 여백을 더해 최종 캡처 폭으로 고정한다.
+        naturalW = Math.max(rosterTable ? rosterTable.scrollWidth : 0, PDF_MIN_CAPTURE_W) + 24;
+        target.style.width    = naturalW + 'px';
+        target.style.minWidth = naturalW + 'px';
+        captureW = Math.max(target.scrollWidth, naturalW) + 16;
+
+        // 3) 캡처가 190mm 로 축소되는 배율을 역산해, 괄호 라벨이 본문보다
+        //    정확히 PDF_PAREN_PT_DELTA(pt) 만큼 작게 찍히도록 px 값을 정한다.
+        const pxPerMm  = captureW / PDF_USABLE_W_MM;
+        const parenPx  = Math.max(basePx - PDF_PAREN_PT_DELTA * PT_TO_MM * pxPerMm, basePx * 0.5);
+        target.style.setProperty('--pdf-paren-font', parenPx.toFixed(2) + 'px');
+    }
 
     function restore() {
         document.getElementById('pdfHeader').style.display = 'none';
@@ -691,11 +715,11 @@ function generatePDF() {
         noPrintElements.forEach(el => el.style.display = '');
         scrollWrapper.style.overflowX = originalOverflow;
         target.classList.remove('pdf-export');
+        target.style.removeProperty('--pdf-paren-font');
         target.style.width    = originalWidth;
         target.style.minWidth = originalMinWidth;
     }
 
-    const captureW = Math.max(target.scrollWidth, naturalW) + 16;
     const captureH = target.scrollHeight + 24;
 
     html2canvas(target, {
